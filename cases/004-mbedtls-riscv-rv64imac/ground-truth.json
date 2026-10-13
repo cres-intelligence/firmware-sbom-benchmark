@@ -1,14 +1,19 @@
 {
   "Case": "004-mbedtls-riscv-rv64imac",
-  "GroundTruthVersion": 1,
+  "GroundTruthVersion": 2,
   "Established": "2026-10-13",
   "Method": "Derived from the GNU ld map in evidence/output.map.gz, parsed by cres_t4.service.linker_map.parse -- which reads a RISC-V map with no changes -- and cross-checked against `riscv64-unknown-elf-ar t`. Versions and licences carry over from the recorded commit: the same tree as cases 002 and 003.",
   "Matching": "A candidate component matches when its name, lower-cased with punctuation removed, equals the entry's Name or any of its AcceptableNames.",
-
   "Components": [
     {
       "Name": "Mbed TLS",
-      "AcceptableNames": ["mbedtls", "mbedcrypto", "libmbedcrypto", "mbedtlscrypto", "armmbedtls"],
+      "AcceptableNames": [
+        "mbedtls",
+        "mbedcrypto",
+        "libmbedcrypto",
+        "mbedtlscrypto",
+        "armmbedtls"
+      ],
       "Version": "3.6.2",
       "VersionConfidence": "pinned",
       "VersionNote": "MBEDTLS_VERSION_STRING in the built tree at 107ea89d, tag v3.6.2.",
@@ -18,23 +23,35 @@
       "Scope": "shipped",
       "ScopeConfidence": "pinned",
       "Evidence": {
-        "Archives": ["libmbedcrypto.a"],
-        "LinkedBytes": 18216,
+        "Archives": [
+          "libmbedcrypto.a"
+        ],
+        "LinkedBytes": 17916,
         "MembersInArchive": 86,
         "MembersPulledIn": 3,
         "MembersNeverPulled": 83,
-        "PulledInNames": ["aes.o", "platform_util.o", "sha256.o"],
+        "PulledInNames": [
+          "aes.o",
+          "platform_util.o",
+          "sha256.o"
+        ],
         "Lists": {
           "InArchive": "evidence/members-in-archive.txt",
           "PulledIn": "evidence/members-pulled-in.txt",
           "NeverPulled": "evidence/members-never-pulled.txt"
-        }
+        },
+        "PreviousLinkedBytes": 18216
       },
       "Uncertainty": "THE SAME THREE MEMBERS AS CASES 002 AND 003, which is the point of this case existing. The archive is 156KB here against 94KB on Cortex-M -- RISC-V encodes the same source larger -- and the image needs the same three translation units. 'Which members ship' is a property of the program, not of the linker and not of the architecture."
     },
     {
       "Name": "libgcc",
-      "AcceptableNames": ["libgcc", "gcc", "gccruntime", "libgccs"],
+      "AcceptableNames": [
+        "libgcc",
+        "gcc",
+        "gccruntime",
+        "libgccs"
+      ],
       "Version": "12.2.0",
       "VersionConfidence": "heuristic",
       "VersionNote": "From the archive's own path (/usr/lib/gcc/riscv64-unknown-elf/12.2.0/rv64imac/lp64/), which is the compiler's version. Heuristic because a filesystem layout is not a manifest.",
@@ -44,25 +61,30 @@
       "Scope": "shipped",
       "ScopeConfidence": "pinned",
       "Evidence": {
-        "Archives": ["libgcc.a"],
-        "LinkedBytes": 1298,
+        "Archives": [
+          "libgcc.a"
+        ],
+        "LinkedBytes": 40,
         "MembersPulledIn": 1,
-        "PulledInNames": ["_bswapsi2.o"]
+        "PulledInNames": [
+          "_bswapsi2.o"
+        ],
+        "PreviousLinkedBytes": 1298
       },
       "Uncertainty": "AN ARCHITECTURE-SPECIFIC DEPENDENCY THAT APPEARS IN NO SOURCE FILE. Base RISC-V has no byte-swap instruction, so mbed TLS's SHA-256 calls libgcc's __bswapsi2 where ARM got a single `rev`. The link fails outright without -lgcc. libgcc is a component of THIS image and of case 002's (division helpers) and of NEITHER case 003's -- so even the compiler runtime's presence is a property of the architecture and the configuration, not of the project. Exactly what a source-tree scanner cannot find."
     }
   ],
-
   "NotComponents": [
     {
       "Name": "the application",
       "Why": "First-party code -- app.c, including the memcpy and memset the freestanding build needs. One object, 334 bytes.",
       "Objects": 1,
       "LinkedBytes": 334,
-      "ObjectNames": ["app.o"]
+      "ObjectNames": [
+        "app.o"
+      ]
     }
   ],
-
   "Open": [
     {
       "Question": "Does the total reconcile?",
@@ -72,5 +94,7 @@
       "Question": "Why is there no picolibc component?",
       "Detail": "The link is -nostdlib, so picolibc supplies headers at compile time and nothing at link time -- app.c provides its own memcpy and memset. picolibc is a BUILD dependency and not a component of the image, and the distinction is one a tool reading the build rather than the link would get wrong."
     }
-  ]
+  ],
+  "Revised": "2026-10-13",
+  "RevisionNote": "CORRECTED 2026-10-13: re-established after both map readers were fixed to stop counting output sections that are in the ELF file but not in the device (.debug_*, .comment, .ARM.attributes, .riscv.attributes). The previous figure is kept as PreviousLinkedBytes."
 }

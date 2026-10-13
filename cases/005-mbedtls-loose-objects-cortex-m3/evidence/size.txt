@@ -1,0 +1,2 @@
+   text	   data	    bss	    dec	    hex	filename
+   7080	    112	   9000	  16192	   3f40	app.elf

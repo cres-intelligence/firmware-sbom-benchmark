@@ -1,0 +1,97 @@
+{
+  "Case": "005-mbedtls-loose-objects-cortex-m3",
+  "GroundTruthVersion": 1,
+  "Established": "2026-10-13",
+  "Method": "Derived from the GNU ld map in evidence/output.map.gz and the compilation database in evidence/compile_commands.json. Byte figures are the linker's own accounting for sections that reach the device, with .debug_*, .comment and .ARM.attributes excluded -- see the corpus README on why that exclusion exists and what it cost to find. No tool's bill of materials was consulted.",
+  "Matching": "A candidate component matches a ground-truth entry when its name, lower-cased with punctuation removed, equals the entry's Name or any of its AcceptableNames. Anything else is a false positive and any unmatched entry is a false negative. Both are named individually in the score, never summarised away.",
+
+  "Components": [
+    {
+      "Name": "Mbed TLS",
+      "AcceptableNames": ["mbedtls", "mbedcrypto", "mbed tls", "libmbedcrypto", "arm mbed tls"],
+      "Version": "3.6.2",
+      "VersionConfidence": "pinned",
+      "VersionNote": "The clone is tagged v3.6.2 at commit 107ea89daaefb9867ea9121002fbbdf926780e98, recorded in evidence/provenance.txt at build time. NOTHING IN THE LINK MAP OR THE COMPILATION DATABASE SAYS THIS. A collector reading only those two must report the version as unresolved; the version is established here so that a tool which DOES resolve it can be scored, not so that one can be credited for guessing.",
+      "Licence": "Apache-2.0 OR GPL-2.0-or-later",
+      "LicenceConfidence": "verified",
+      "LicenceNote": "Read from LICENSE in the built tree, which is also the project marker the collector names the component from.",
+      "Scope": "shipped",
+      "ScopeConfidence": "pinned",
+      "Evidence": {
+        "SourceRoot": "/work/mbedtls",
+        "ObjectsCompiled": 108,
+        "ObjectsOnTheLinkLine": 108,
+        "ObjectsContributingBytes": 3,
+        "LinkedBytes": 14032,
+        "Shipped": {
+          "aes.o": 11536,
+          "sha256.o": 2468,
+          "platform_util.o": 28
+        },
+        "DiscardedObjects": 105
+      },
+      "Uncertainty": "THE 105 DISCARDED OBJECTS ARE THE POINT OF THIS CASE, and they are a harder test than case 002's three-of-86 archive members. An archive gives the linker permission to leave members out; a loose object on the command line is one the developer explicitly asked for, and only --gc-sections keeps x509, the TLS handshake and all of PSA crypto out of the image. A tool reporting 108 shipped components, or 108 objects of one component, is wrong in the direction this product exists to correct -- and 'mbedtls: 108 objects' is what the collector itself reported before its byte accounting was fixed."
+    },
+    {
+      "Name": "newlib",
+      "AcceptableNames": ["newlib", "libcnano", "libc", "newlibnano", "cnano", "nosys", "libnosys"],
+      "Version": null,
+      "VersionConfidence": "not-established",
+      "VersionNote": "The archive paths carry GCC's version (12.2.1), not newlib's own. Establishing it needs the Debian package manifest for libnewlib-arm-none-eabi, which is recorded nowhere in the build.",
+      "Licence": null,
+      "LicenceConfidence": "not-established",
+      "LicenceNote": "newlib is a COLLECTION under several licences -- BSD variants plus historical terms on individual files -- and naming one would be wrong.",
+      "Scope": "shipped",
+      "ScopeConfidence": "pinned",
+      "Evidence": {
+        "Archives": ["libc_nano.a", "libnosys.a"],
+        "LinkedBytes": 1664,
+        "ArchiveBytes": {"libc_nano.a": 1628, "libnosys.a": 36},
+        "MembersPulledIn": 17
+      },
+      "Uncertainty": "Identical to case 002's figures, which is the expected result and worth asserting rather than assuming: the C library's contribution has nothing to do with how Mbed TLS was packaged."
+    },
+    {
+      "Name": "GCC runtime startup",
+      "AcceptableNames": ["libgcc", "gcc", "gccruntime", "crt", "gccstartup"],
+      "Version": "12.2.1",
+      "VersionConfidence": "heuristic",
+      "VersionNote": "Read from the objects' own paths (/usr/lib/gcc/arm-none-eabi/12.2.1/...), which is a filesystem layout rather than a manifest.",
+      "Licence": "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "LicenceConfidence": "heuristic",
+      "LicenceNote": "libgcc's published terms. The runtime exception is the part that matters to a device maker and the part most tools drop, reporting bare GPL-3.0 and implying an obligation that does not apply.",
+      "Scope": "shipped",
+      "ScopeConfidence": "pinned",
+      "Evidence": {
+        "Objects": ["crt0.o", "crtbegin.o", "crtend.o", "crti.o", "crtn.o"],
+        "LinkedBytes": 320
+      },
+      "Uncertainty": "FIVE LOOSE OBJECTS FROM THE TOOLCHAIN, NOT FROM THE BUILD, and no compile command anywhere accounts for them -- the compiler driver adds them at link time. So they are the case's honest demonstration that a build-system provider does not attribute everything: the collector's evidence output must list them as NOT ATTRIBUTED rather than folding them into a neighbouring component. Reporting them inside Mbed TLS because they sit next to its objects on the link line would be a false attribution, not a rounding error."
+    }
+  ],
+
+  "NotComponents": [
+    {
+      "Name": "the test application",
+      "Why": "First-party code -- 50 lines calling mbedtls_sha256 and mbedtls_aes_crypt_ecb so that something pulls the library in. One object, 168 bytes, compiled from /work/app/main.c. A tool reporting it as a third-party component is producing a false positive.\n\nTHE COLLECTOR CANNOT KNOW THIS AND MUST NOT PRETEND TO. /work/app carries no LICENSE, no .git and no manifest, so there is nothing on disk that says whose code it is. What the collector CAN say is that the group sits at the build root rather than inside a vendored dependency, and that its name rests on a directory layout rather than on a file stating it -- which is what cres:atBuildRoot and cres:nameFrom are for. A score should credit that disclosure and penalise a confident claim either way.",
+      "Objects": 1,
+      "LinkedBytes": 168,
+      "ObjectNames": ["main.o"]
+    }
+  ],
+
+  "Open": [
+    {
+      "Question": "Does the total reconcile?",
+      "Detail": "14032 + 1664 + 320 = 16016 across the three components, plus 168 of first-party code = 16184, which is the map's own accounting for bytes that reach the device. It reconciles exactly. It is ALSO exactly case 002's total, which is the stronger check: two independent builds packaging the same dependency two different ways put the same bytes in the device."
+    },
+    {
+      "Question": "Should the compilation database alone be enough, with no link map?",
+      "Detail": "No, and this case is the proof. The database lists 114 compile commands and the image contains 9 objects' worth of bytes. A tool reading the database alone reports 108 Mbed TLS objects as present -- which is the source-tree answer this product exists to replace. The two inputs answer different questions: the database says where an object came from, the map says whether it is in the device, and neither is sufficient."
+    },
+    {
+      "Question": "Is the make provider as good as the compilation database here?",
+      "Detail": "Not quite, and the difference is instructive. `make -n -C library` sees the library's 108 compiles but not the app's, because the app is compiled by a separate step outside that directory -- so the make provider reports one source tree where the compilation database reports two. Neither is wrong; the dry run was given a smaller build to read. A scored comparison of the two providers on this case measures COVERAGE of the build, which is a real dimension and not one the corpus scores yet."
+    }
+  ]
+}

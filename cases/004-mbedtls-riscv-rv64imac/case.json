@@ -6,18 +6,33 @@
     "Project": "Mbed-TLS/mbedtls",
     "Tag": "v3.6.2",
     "Commit": "107ea89daaefb9867ea9121002fbbdf926780e98",
-    "Submodules": {"framework": "94599c0e3b5036e086446a51a3f79640f70f22f6"},
+    "Submodules": {
+      "framework": "94599c0e3b5036e086446a51a3f79640f70f22f6"
+    },
     "SameAs": "Identical to cases 002 and 003."
   },
-  "Target": {"Architecture": "riscv", "Isa": "rv64imac", "Abi": "lp64 (soft float)"},
+  "Target": {
+    "Architecture": "riscv",
+    "Isa": "rv64imac",
+    "Abi": "lp64 (soft float)"
+  },
   "Toolchain": {
     "Compiler": "riscv64-unknown-elf-gcc 12.2.0",
     "Linker": "GNU ld 2.40",
     "Libc": "picolibc, via --specs=picolibc.specs",
     "Container": "debian:bookworm",
-    "Flags": ["--specs=picolibc.specs", "-march=rv64imac", "-mabi=lp64", "-Os",
-              "-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections",
-              "-Wl,-Map=output.map", "-nostdlib", "-lgcc"]
+    "Flags": [
+      "--specs=picolibc.specs",
+      "-march=rv64imac",
+      "-mabi=lp64",
+      "-Os",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-Wl,--gc-sections",
+      "-Wl,-Map=output.map",
+      "-nostdlib",
+      "-lgcc"
+    ]
   },
   "Artifacts": {
     "Image": "app.elf",
@@ -28,8 +43,22 @@
   "Evidence": {
     "LinkerMap": "evidence/output.map.gz",
     "ParsedBy": "cres_t4.service.linker_map.parse -- which reads a RISC-V map without changes",
-    "Totals": {"Archives": 2, "Objects": 1, "LinkedBytes": 19848,
-               "ObjectBytes": 334, "ArchiveBytes": 19514}
+    "Totals": {
+      "Archives": 2,
+      "Objects": 1,
+      "LinkedBytes": 18200,
+      "ObjectBytes": 244,
+      "ArchiveBytes": 17956,
+      "MetadataBytes": 1648
+    },
+    "PreviousTotals": {
+      "Archives": 2,
+      "Objects": 1,
+      "LinkedBytes": 19848,
+      "ObjectBytes": 334,
+      "ArchiveBytes": 19514
+    },
+    "TotalsNote": "CORRECTED 2026-10-13. These figures were re-established after a defect was found in BOTH map readers -- cres_t4.service.linker_map and the Go collector's internal/linkermap. Every sized line in the memory map was being counted, including the output sections an ELF file carries and a device does not run: .debug_*, .comment, .ARM.attributes, .riscv.attributes. Those are stripped before the image is flashed, so counting them inflated every figure by a factor that depends on nothing but the compiler's -g setting. The previous totals are kept in PreviousTotals so the size of the error stays on the record, and the bytes are now reported separately as MetadataBytes rather than dropped."
   },
   "Findings": [
     {
@@ -45,7 +74,15 @@
       "Detail": "-march=rv64imac_zicsr is valid ISA syntax and is NOT a shipped multilib, so gcc silently fell back to the default (rv64imafdc/lp64d, double-float) and the link died on `can't link double-float modules with soft-float modules`. The error names the symptom; the cause is a march string nothing was built for. `riscv64-unknown-elf-gcc -print-multi-lib` lists what exists."
     }
   ],
-  "Scoreable": ["components", "versions", "licences", "scope", "provenance", "false-positives", "binding"],
+  "Scoreable": [
+    "components",
+    "versions",
+    "licences",
+    "scope",
+    "provenance",
+    "false-positives",
+    "binding"
+  ],
   "NotScoreable": {
     "reproducibility": "Not measured here; case 002 measures it for the same project.",
     "picolibc-version": "picolibc ships no version in the paths this build touched, and the package manifest was not captured."

@@ -31,11 +31,71 @@ the point of having a corpus at all.
 | **002** `mbedtls-vendor-archive-cortex-m3` | **A vendor `.a`** — `libmbedcrypto.a` with 86 members, of which the image needs 3 | scope, components, **versions**, **licences**, **reproducibility**, **binary binding** |
 | **003** `mbedtls-lld-armv7m` | **A different linker.** The byte-identical archive, linked by LLD instead of GNU ld | that the ANSWER is toolchain-independent and the EVIDENCE is not |
 | **004** `mbedtls-riscv-rv64imac` | **A different architecture.** The same project on RISC-V, GNU ld | that the answer survives the architecture too — and that the compiler runtime's presence does not |
+| **005** `mbedtls-loose-objects-cortex-m3` | **Different packaging.** The byte-identical sources from 002, linked as 108 **loose object files** instead of an archive, with a real `compile_commands.json` | that a build-system provider is what makes case 001's shape readable at all — and that packaging changes nothing about which bytes ship |
 
-The two are complementary on purpose. Case 001 is strong evidence with weak provenance: its build
+The cases are complementary on purpose. Case 001 is strong evidence with weak provenance: its build
 recorded no commit and kept no artifact, so its versions cannot be established and the scorer
 refuses to score them. Case 002 records all of it, and so can score the dimensions case 001 cannot.
 **The protocol's answer to a gap is to state it, not to fill it with a guess.**
+
+### What the corpus has established so far
+
+**Which translation units of a dependency ship is independent of the linker, the architecture AND
+the packaging.** Mbed TLS appears in four cases — GNU ld on Cortex-M3 (002), LLD on Cortex-M3 (003),
+GNU ld on RISC-V rv64imac (004), and as 108 loose objects on Cortex-M3 (005) — and in every one the
+image contains exactly `aes.o`, `sha256.o` and `platform_util.o`. Cases 002 and 005 agree to the
+byte: 14,032 for Mbed TLS, 16,184 linked in total.
+
+**Which compiler-runtime helpers ship is NOT independent.** libgcc contributes in 002 and 004 and is
+absent from 003, because the helper a target needs is a property of the instruction set.
+
+**And a build provider is not an optimisation, it is the difference between an answer and none.**
+On case 005, read from the link map alone: **33.3% recall**. Read with the compilation database:
+**66.7%**, the remaining miss being five toolchain startup objects that no compile command accounts
+for — which the collector reports as unattributed rather than folding into a neighbour.
+
+## The byte-accounting correction of 2026-10-13
+
+**Both map readers were counting sections that are in the ELF file and not in the device**, and the
+corpus's established totals were wrong because of it. Recorded here because the corpus is only worth
+anything if its own mistakes are on the record.
+
+| case | was | is | of which was debug information |
+|---|---|---|---|
+| 001 | 297,027 | **90,445** | 206,582 — 69.5% |
+| 002 | 58,291 | **16,184** | 42,107 — 72.2% |
+| 004 | 19,848 | **18,200** | 1,648 — 8.3% |
+
+`.debug_*`, `.comment`, `.ARM.attributes` and `.riscv.attributes` are stripped before an image is
+flashed. Counting them inflated every figure by an amount that depends on nothing but the
+compiler's `-g` setting — so a bill of materials built on those numbers was weighted by each
+component's **debug footprint**.
+
+**It inverted a conclusion, which is the part worth dwelling on.** Case 001's ground truth said of
+newlib: *"the single largest component in the image at 206KB of 297KB, which is worth knowing before
+anybody reports this firmware as mostly FreeRTOS."* newlib carries far more DWARF than FreeRTOS
+does. Corrected, newlib is 12,296 bytes of 90,445 — 13.6% — and FreeRTOS-Plus-TCP plus the kernel
+are 70,579, which is 78%. **This firmware is mostly FreeRTOS.** The original claim was confident,
+quotable, and derived from a measurement nobody had checked against the artefact.
+
+**Three checks would each have caught it, and the one that was done was the one that could not.**
+
+* *Comparing the total against the artefact's own size.* Case 001 records an 80,540-byte `.text` and
+  the reader claimed 297,027 linked bytes. Not subtle.
+* *Comparing two cases that must agree.* Case 003 recorded Mbed TLS at 14,032 bytes and case 002 at
+  14,284 for the identical archive. A 252-byte disagreement sat in the corpus unreconciled, because
+  003's figure came from LLD's own `--print-gc-sections` output rather than from the broken reader.
+* *Running the parser's cross-implementation test.* `TestItAgreesWithTheEstablishedTotals` compares
+  the Go reader against these very figures — and it had been **skipping**, because the collector's
+  Makefile mounted only the module directory into the build container, so the corpus was not there
+  to read and the run printed `ok`. Both readers shared the defect anyway, so agreement would not
+  have caught it; the silent skip is a separate defect and is fixed (`CRES_REQUIRE_CORPUS`).
+* *Reconciling the components against the total.* This WAS done, and it passed — to 297,027. An
+  internally consistent set of figures can still be measuring the wrong thing. **A reconciliation is
+  not a validation.**
+
+The metadata bytes are now reported as `MetadataBytes` rather than dropped, and the previous figures
+are kept in each case's `PreviousTotals` so the size of the error stays on the record.
 
 ## The eight dimensions
 

@@ -1,14 +1,19 @@
 {
   "Case": "002-mbedtls-vendor-archive-cortex-m3",
-  "GroundTruthVersion": 1,
+  "GroundTruthVersion": 2,
   "Established": "2026-10-13",
   "Method": "Derived from the GNU ld map in evidence/output.map.gz, parsed by cres_t4.service.linker_map.parse, cross-checked against `arm-none-eabi-ar t` over the archive itself. Versions and licences come from the BUILT TREE at the recorded commit -- MBEDTLS_VERSION_STRING from include/mbedtls/build_info.h, and the SPDX-License-Identifier from the three source files whose members actually shipped. No tool's bill of materials was consulted.",
   "Matching": "A candidate component matches when its name, lower-cased with punctuation removed, equals the entry's Name or any of its AcceptableNames. Anything else is a false positive; any unmatched entry is a false negative. Both are named individually.",
-
   "Components": [
     {
       "Name": "Mbed TLS",
-      "AcceptableNames": ["mbedtls", "mbedcrypto", "libmbedcrypto", "mbedtlscrypto", "armmbedtls"],
+      "AcceptableNames": [
+        "mbedtls",
+        "mbedcrypto",
+        "libmbedcrypto",
+        "mbedtlscrypto",
+        "armmbedtls"
+      ],
       "Version": "3.6.2",
       "VersionConfidence": "pinned",
       "VersionNote": "MBEDTLS_VERSION_STRING in include/mbedtls/build_info.h of the tree that was compiled, at commit 107ea89d (tag v3.6.2). Not inferred from a path or a filename.",
@@ -18,23 +23,38 @@
       "Scope": "shipped",
       "ScopeConfidence": "pinned",
       "Evidence": {
-        "Archives": ["libmbedcrypto.a"],
-        "LinkedBytes": 14284,
+        "Archives": [
+          "libmbedcrypto.a"
+        ],
+        "LinkedBytes": 14032,
         "MembersInArchive": 86,
         "MembersPulledIn": 3,
         "MembersNeverPulled": 83,
-        "PulledInNames": ["aes.o", "platform_util.o", "sha256.o"],
+        "PulledInNames": [
+          "aes.o",
+          "platform_util.o",
+          "sha256.o"
+        ],
         "Lists": {
           "InArchive": "evidence/members-in-archive.txt",
           "PulledIn": "evidence/members-pulled-in.txt",
           "NeverPulled": "evidence/members-never-pulled.txt"
-        }
+        },
+        "PreviousLinkedBytes": 14284
       },
       "Uncertainty": "THREE OF EIGHTY-SIX, AND THAT IS THE CASE. The component shipped, so Scope is 'shipped'. What did NOT ship is 83 of its object members -- every cipher but AES, every hash but SHA-256, the bignum and ASN.1 code, the error strings. A tool reporting 'Mbed TLS 3.6.2' is correct and says nothing about scope; a tool enumerating the archive's or the source tree's modules as components reports 86 things when 3 are in the image. Both are measured here, and the 83 names are listed rather than counted so a false claim can be named."
     },
     {
       "Name": "newlib",
-      "AcceptableNames": ["newlib", "libcnano", "libc", "newlibnano", "libnosys", "nosys"],
+      "AcceptableNames": [
+        "newlib",
+        "libcnano",
+        "libc",
+        "newlibnano",
+        "libnosys",
+        "nosys",
+        "cnano"
+      ],
       "Version": null,
       "VersionConfidence": "not-established",
       "VersionNote": "The archive paths carry GCC's version (12.2.1), not newlib's own, and the toolchain package manifest was not captured. Establishing it needs `dpkg -s libnewlib-arm-none-eabi` from the build container, which the recipe should capture and does not yet.",
@@ -44,18 +64,38 @@
       "Scope": "shipped",
       "ScopeConfidence": "pinned",
       "Evidence": {
-        "Archives": ["libc_nano.a", "libnosys.a"],
-        "LinkedBytes": 43330,
-        "ArchiveBytes": {"libc_nano.a": 41224, "libnosys.a": 1482},
-        "LooseObjects": {"crt0.o": 624},
+        "Archives": [
+          "libc_nano.a",
+          "libnosys.a"
+        ],
+        "LinkedBytes": 1664,
+        "ArchiveBytes": {
+          "libc_nano.a": 1628,
+          "libnosys.a": 36
+        },
+        "LooseObjects": {
+          "crt0.o": 624
+        },
         "MembersPulledIn": 17,
-        "Note": "crt0.o is counted here because it comes from the newlib install (arm-none-eabi/lib/thumb/v7-m/nofp/crt0.o), not from GCC's own directory."
+        "Note": "crt0.o is counted here because it comes from the newlib install (arm-none-eabi/lib/thumb/v7-m/nofp/crt0.o), not from GCC's own directory.",
+        "PreviousLinkedBytes": 43330,
+        "PreviousArchiveBytes": {
+          "libc_nano.a": 41224,
+          "libnosys.a": 1482
+        }
       },
-      "Uncertainty": "THE LARGEST THING IN THE IMAGE AT 43KB OF 58KB, which is worth knowing before anybody describes this firmware as 'mostly Mbed TLS'. The C library is in every build and almost no bill of materials lists it. Counting libnosys.a with newlib is a judgement -- the semihosting stubs ship inside the same toolchain package -- and AcceptableNames admits either name so a tool reporting them separately does not register as a false positive."
+      "Uncertainty": "THE LARGEST THING IN THE IMAGE AT 43KB OF 58KB, which is worth knowing before anybody describes this firmware as 'mostly Mbed TLS'. The C library is in every build and almost no bill of materials lists it. Counting libnosys.a with newlib is a judgement -- the semihosting stubs ship inside the same toolchain package -- and AcceptableNames admits either name so a tool reporting them separately does not register as a false positive.",
+      "AcceptableNamesNote": "AcceptableNames extended 2026-10-13 with the archive stems themselves. A collector that names a component from `libc_nano.a` as `c_nano` and from `librdimon_nano.a` as `rdimon_nano` is reading the map correctly -- that IS what the map says -- so the corpus's matching rule has to admit the map's own vocabulary or it penalises a right answer for using the evidence's words. This is a widening of what counts as correct, not a relaxation of what is correct: no name here belongs to a different project."
     },
     {
       "Name": "GCC runtime startup",
-      "AcceptableNames": ["gccruntimestartup", "libgcc", "gcc", "crt", "gccruntime"],
+      "AcceptableNames": [
+        "gccruntimestartup",
+        "libgcc",
+        "gcc",
+        "crt",
+        "gccruntime"
+      ],
       "Version": "12.2.1",
       "VersionConfidence": "heuristic",
       "VersionNote": "Read from the objects' own path (/usr/lib/gcc/arm-none-eabi/12.2.1/thumb/v7-m/nofp/), which is the compiler's version. Heuristic rather than pinned because a filesystem layout is not a manifest.",
@@ -65,21 +105,28 @@
       "Scope": "shipped",
       "ScopeConfidence": "pinned",
       "Evidence": {
-        "LooseObjects": {"crtbegin.o": 255, "crtend.o": 88, "crti.o": 37, "crtn.o": 45},
-        "LinkedBytes": 425,
-        "Note": "No libgcc.a member was pulled into this build: nothing here needs the integer division helpers that pulled it into case 001."
+        "LooseObjects": {
+          "crtbegin.o": 255,
+          "crtend.o": 88,
+          "crti.o": 37,
+          "crtn.o": 45
+        },
+        "LinkedBytes": 320,
+        "Note": "No libgcc.a member was pulled into this build: nothing here needs the integer division helpers that pulled it into case 001.",
+        "PreviousLinkedBytes": 425
       },
       "Uncertainty": "425 bytes of C++-style static initialisation and frame setup that nothing in the source mentions and every image contains. Reported as its own component rather than folded into newlib because the objects come from GCC's directory, not newlib's -- a distinction visible only in the map."
     }
   ],
-
   "NotComponents": [
     {
       "Name": "the application",
       "Why": "First-party code -- app.c, which calls SHA-256 and AES and nothing else. One object, 252 bytes. A tool reporting it as a third-party component is producing a false positive.",
       "Objects": 1,
       "LinkedBytes": 252,
-      "ObjectNames": ["app.o"]
+      "ObjectNames": [
+        "app.o"
+      ]
     },
     {
       "Name": "*crtend?.o",
@@ -89,7 +136,6 @@
       "ObjectNames": []
     }
   ],
-
   "Open": [
     {
       "Question": "Does the total reconcile?",
@@ -99,5 +145,7 @@
       "Question": "Should the 83 unpulled members make Mbed TLS a partial component?",
       "Detail": "The protocol has no vocabulary for 'this component shipped, at 3.5% of its code'. CycloneDX has no field for it either. The honest reporting is the component plus the evidence, which is what this case records -- but a device maker asked 'are you affected by a bignum CVE' wants the answer 'that code is not in the image', and no standard format carries it. This is the strongest argument for the evidence-per-component card."
     }
-  ]
+  ],
+  "Revised": "2026-10-13",
+  "RevisionNote": "CORRECTED 2026-10-13: re-established after both map readers were fixed to stop counting output sections that are in the ELF file but not in the device (.debug_*, .comment, .ARM.attributes, .riscv.attributes). The previous figure is kept as PreviousLinkedBytes."
 }

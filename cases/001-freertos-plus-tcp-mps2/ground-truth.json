@@ -1,14 +1,17 @@
 {
   "Case": "001-freertos-plus-tcp-mps2",
-  "GroundTruthVersion": 1,
+  "GroundTruthVersion": 2,
   "Established": "2026-10-13",
   "Method": "Derived from the GNU ld map in evidence/output.map.gz, parsed by cres_t4.service.linker_map.parse. Byte figures are the linker's own accounting, not an estimate. No tool's bill of materials was consulted: a corpus whose truth came from a scanner measures agreement with that scanner.",
   "Matching": "A candidate component matches a ground-truth entry when its name, lower-cased with punctuation removed, equals the entry's Name or any of its AcceptableNames. Anything else is a false positive and any unmatched entry is a false negative. Both are named individually in the score, never summarised away.",
-
   "Components": [
     {
       "Name": "FreeRTOS-Plus-TCP",
-      "AcceptableNames": ["freertosplustcp", "freertostcp", "freertos-plus-tcp"],
+      "AcceptableNames": [
+        "freertosplustcp",
+        "freertostcp",
+        "freertos-plus-tcp"
+      ],
       "Version": null,
       "VersionConfidence": "not-established",
       "VersionNote": "No commit was recorded for the built tree, so there is nothing to establish a version from. The map carries no version information -- it never does.",
@@ -19,7 +22,7 @@
       "ScopeConfidence": "pinned",
       "Evidence": {
         "Objects": 45,
-        "LinkedBytes": 67453,
+        "LinkedBytes": 64261,
         "DiscardedObjects": 7,
         "DiscardedNames": [
           "FreeRTOS_BitConfig.o",
@@ -35,13 +38,18 @@
           "FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/BufferManagement",
           "FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/MPS2_AN385",
           "FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/MPS2_AN385/ether_lan9118"
-        ]
+        ],
+        "PreviousLinkedBytes": 67453
       },
       "Uncertainty": "THE SEVEN DISCARDED OBJECTS ARE THE POINT OF THIS CASE. They were compiled -- the build produced object files -- and the linker put none of their bytes in the image: IPv6, DHCPv6, two DNS modules, the IPv4 and IPv6 TCP paths, and Tiny TCP. The component itself shipped, so this entry's Scope is 'shipped'; a tool claiming the DHCPv6 or IPv6 code shipped is wrong, and DiscardedNames is what scope accuracy is measured against."
     },
     {
       "Name": "FreeRTOS kernel",
-      "AcceptableNames": ["freertos", "freertoskernel", "freertos-kernel"],
+      "AcceptableNames": [
+        "freertos",
+        "freertoskernel",
+        "freertos-kernel"
+      ],
       "Version": null,
       "VersionConfidence": "not-established",
       "VersionNote": "As above: no recorded commit.",
@@ -52,19 +60,28 @@
       "ScopeConfidence": "pinned",
       "Evidence": {
         "Objects": 6,
-        "LinkedBytes": 6822,
+        "LinkedBytes": 6318,
         "DiscardedObjects": 0,
         "Directories": [
           "FreeRTOS/Source",
           "FreeRTOS/Source/portable/GCC/ARM_CM3",
           "FreeRTOS/Source/portable/MemMang"
-        ]
+        ],
+        "PreviousLinkedBytes": 6822
       },
       "Uncertainty": "Six objects of a kernel that has far more: a build selects one port (ARM_CM3) and one heap implementation (heap_3), so the absent ones are a configuration choice rather than dead code. Reporting the kernel once is right; reporting 'FreeRTOS heap_3' as a component is a granularity error, not a false positive, and the score says which."
     },
     {
       "Name": "newlib",
-      "AcceptableNames": ["newlib", "libcnano", "libc", "newlibnano"],
+      "AcceptableNames": [
+        "newlib",
+        "libcnano",
+        "libc",
+        "newlibnano",
+        "cnano",
+        "rdimonnano",
+        "librdimonnano"
+      ],
       "Version": null,
       "VersionConfidence": "not-established",
       "VersionNote": "The archive paths carry the GCC version (12.2.1), not newlib's own. Establishing it needs the toolchain package's manifest, which was not kept.",
@@ -78,18 +95,30 @@
           "libc_nano.a",
           "librdimon_nano.a"
         ],
-        "LinkedBytes": 206111,
+        "LinkedBytes": 12296,
         "MembersPulledIn": 49,
         "ArchiveBytes": {
+          "libc_nano.a": 9516,
+          "librdimon_nano.a": 2780
+        },
+        "PreviousLinkedBytes": 206111,
+        "PreviousArchiveBytes": {
           "libc_nano.a": 174344,
           "librdimon_nano.a": 31767
         }
       },
-      "Uncertainty": "ONE COMPONENT, TWO ARCHIVES, and that is a judgement. librdimon_nano.a is newlib's semihosting stub library and comes from the same upstream project, so a bill of materials naming 'newlib' once is correct. A tool reporting both archives separately is not wrong about the bytes -- it is answering at a different granularity, and AcceptableNames admits either so this does not register as a false positive. It is also the single largest component in the image at 206KB of 297KB, which is worth knowing before anybody reports this firmware as 'mostly FreeRTOS'."
+      "Uncertainty": "ONE COMPONENT, TWO ARCHIVES, and that is a judgement. librdimon_nano.a is newlib's semihosting stub library and comes from the same upstream project, so a bill of materials naming 'newlib' once is correct. A tool reporting both archives separately is not wrong about the bytes -- it is answering at a different granularity, and AcceptableNames admits either so this does not register as a false positive.\n\nTHE FIRST VERSION OF THIS ENTRY SAID THE OPPOSITE OF WHAT IS TRUE, and the error is worth keeping on the record. It read: 'the single largest component in the image at 206KB of 297KB, which is worth knowing before anybody reports this firmware as mostly FreeRTOS'. Both readers were counting DWARF, and newlib carries a great deal of it. newlib contributes 12,296 bytes of the 90,445 that reach the device -- 13.6%. FreeRTOS-Plus-TCP and the kernel together contribute 70,579, which is 78%. This firmware IS mostly FreeRTOS. The lesson is not that the conclusion was wrong but that it was confident, quotable and derived from a measurement nobody had checked against the artefact's own size.",
+      "PreviousUncertainty": "ONE COMPONENT, TWO ARCHIVES, and that is a judgement. librdimon_nano.a is newlib's semihosting stub library and comes from the same upstream project, so a bill of materials naming 'newlib' once is correct. A tool reporting both archives separately is not wrong about the bytes -- it is answering at a different granularity, and AcceptableNames admits either so this does not register as a false positive. It is also the single largest component in the image at 206KB of 297KB, which is worth knowing before anybody reports this firmware as 'mostly FreeRTOS'.",
+      "AcceptableNamesNote": "AcceptableNames extended 2026-10-13 with the archive stems themselves. A collector that names a component from `libc_nano.a` as `c_nano` and from `librdimon_nano.a` as `rdimon_nano` is reading the map correctly -- that IS what the map says -- so the corpus's matching rule has to admit the map's own vocabulary or it penalises a right answer for using the evidence's words. This is a widening of what counts as correct, not a relaxation of what is correct: no name here belongs to a different project."
     },
     {
       "Name": "libgcc",
-      "AcceptableNames": ["libgcc", "gcc", "gccruntime", "libgccs"],
+      "AcceptableNames": [
+        "libgcc",
+        "gcc",
+        "gccruntime",
+        "libgccs"
+      ],
       "Version": "12.2.1",
       "VersionConfidence": "heuristic",
       "VersionNote": "Read from the archive's own path (/usr/lib/gcc/arm-none-eabi/12.2.1/...), which is the compiler's version and in practice libgcc's too. Heuristic rather than pinned because the path is a filesystem layout, not a manifest.",
@@ -99,25 +128,30 @@
       "Scope": "shipped",
       "ScopeConfidence": "pinned",
       "Evidence": {
-        "Archives": ["libgcc.a"],
-        "LinkedBytes": 9416,
+        "Archives": [
+          "libgcc.a"
+        ],
+        "LinkedBytes": 764,
         "MembersPulledIn": 4,
-        "PulledInNote": "Four members, all integer division helpers the Cortex-M3 has no instruction for."
+        "PulledInNote": "Four members, all integer division helpers the Cortex-M3 has no instruction for.",
+        "PreviousLinkedBytes": 9416
       },
-      "Uncertainty": "Compiler runtime rather than a dependency anybody chose, which is exactly why it is missed: nothing in the source tree mentions it and it is in every image."
+      "Uncertainty": "Compiler runtime rather than a dependency anybody chose, which is exactly why it is missed: nothing in the source tree mentions it and it is in every image. Four members, all integer division helpers the Cortex-M3 has no instruction for, contributing 764 bytes -- not the 9,416 first recorded, which was mostly its own debug information.",
+      "PreviousUncertainty": "Compiler runtime rather than a dependency anybody chose, which is exactly why it is missed: nothing in the source tree mentions it and it is in every image."
     }
   ],
-
   "NotComponents": [
     {
       "Name": "the demo application",
       "Why": "First-party code -- the echo client and its startup. Five objects, 7,225 bytes, under build/ with no upstream. A tool reporting these as third-party components is producing false positives, and the score counts them as such.",
       "Objects": 5,
-      "LinkedBytes": 7225,
-      "ObjectNames": ["TCPEchoClient_SingleTasks.o"]
+      "LinkedBytes": 6806,
+      "ObjectNames": [
+        "TCPEchoClient_SingleTasks.o"
+      ],
+      "PreviousLinkedBytes": 7225
     }
   ],
-
   "Open": [
     {
       "Question": "Is the LAN9118 Ethernet driver its own component?",
@@ -125,7 +159,13 @@
     },
     {
       "Question": "Does the total reconcile?",
-      "Detail": "67453 + 6822 + 206111 + 9416 = 289802 across the four components, plus 7225 of first-party code = 297027, which is the map's own LinkedBytes. It reconciles exactly, and a case whose bytes do not reconcile is a case whose truth is not established."
+      "Detail": "64261 + 6318 + 12296 + 764 = 83639 across the four components, plus 6806 of first-party code = 90445, which is the map's own accounting for bytes that reach the device. It reconciles exactly, and a case whose bytes do not reconcile is a case whose truth is not established. THE PREVIOUS VERSION OF THIS ENTRY ALSO RECONCILED EXACTLY -- to 297,027 -- which is the lesson: an internally consistent set of figures can still be measuring the wrong thing, and the check that would have caught it was comparing the total against the recorded 80,540-byte .text. A reconciliation is not a validation."
+    },
+    {
+      "Question": "Why was 69.5% of this map debug information?",
+      "Detail": "The demo builds with -g, so the ELF carries 206,582 bytes of DWARF and build attributes against 90,445 bytes that reach the device. Nothing is wrong with that -- it is what a debuggable build looks like -- but it means a map reader that counts every sized line reports a bill of materials weighted by each component's DEBUG footprint. newlib carries more DWARF than FreeRTOS does, which is the entire reason the first version of this ground truth called newlib the largest component."
     }
-  ]
+  ],
+  "Revised": "2026-10-13",
+  "RevisionNote": "CORRECTED 2026-10-13: re-established after both map readers were fixed to stop counting output sections that are in the ELF file but not in the device (.debug_*, .comment, .ARM.attributes, .riscv.attributes). The previous figure is kept as PreviousLinkedBytes."
 }

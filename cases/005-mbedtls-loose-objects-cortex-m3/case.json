@@ -1,0 +1,69 @@
+{
+  "Case": "005-mbedtls-loose-objects-cortex-m3",
+  "Name": "Mbed TLS linked as loose object files on Cortex-M3, read through a compilation database",
+  "Why": "THE ONE VARIABLE THIS ISOLATES IS PACKAGING. Case 002 links the same Mbed TLS sources, built with the same compiler for the same target, as a static ARCHIVE. This case puts all 108 compiled object files on the link command line instead. Nothing else differs.\n\nIt exists because case 001 scored 0.25 recall and the reason was exactly this shape: a firmware that links its dependencies as loose objects gives the link map no archive to name, so a collector reading the map alone reports almost nothing. The fix is to read the COMPILE commands, and this is the case that measures whether that works -- against a compilation database produced by `bear` wrapping the project's own Makefile, not one we wrote.",
+  "Upstream": {
+    "Project": "Mbed-TLS/mbedtls",
+    "Url": "https://github.com/Mbed-TLS/mbedtls",
+    "Tag": "v3.6.2",
+    "Commit": "107ea89daaefb9867ea9121002fbbdf926780e98",
+    "Submodule": "framework @ 94599c0e3b5036e086446a51a3f79640f70f22f6"
+  },
+  "Target": {
+    "Architecture": "arm",
+    "Cpu": "Cortex-M3",
+    "Abi": "thumb/v7-m/nofp",
+    "Board": "none -- bare metal, nosys",
+    "Emulator": null
+  },
+  "Toolchain": {
+    "Compiler": "arm-none-eabi-gcc",
+    "Version": "12.2.1",
+    "Container": "debian:bookworm",
+    "Linker": "GNU ld",
+    "Flags": [
+      "-mcpu=cortex-m3",
+      "-mthumb",
+      "-Os",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-Wl,--gc-sections",
+      "-Wl,-Map=output.map"
+    ],
+    "FlagNote": "Identical to case 002's, deliberately. The only difference between the two cases is that 002 links -lmbedcrypto and this one names every object file."
+  },
+  "BuildSystemEvidence": {
+    "CompilationDatabase": "evidence/compile_commands.json",
+    "Entries": 114,
+    "ProducedBy": "bear 3.x wrapping `make -C library ... static`, plus a bear --append over the app's own compile",
+    "ProducedByNote": "A REAL INTERCEPTION TOOL, NOT A DATABASE WE WROTE. A hand-authored compilation database is a database whose contents can be made to come out right, which would make this case measure nothing.",
+    "MakeDryRun": "evidence/make-dry-run.txt.gz",
+    "DryRunLines": 233,
+    "DryRunNote": "Captured from an UNTOUCHED tree with `make -n`. On an already-built tree a dry run prints nothing, because nothing is out of date -- which looks exactly like a provider that failed to read the build."
+  },
+  "Artifacts": {
+    "Image": "app.elf",
+    "TextBytes": 7080,
+    "DataBytes": 112,
+    "BssBytes": 9000,
+    "ImageDigest": "ced2d1a9dbcfeb2eda7b070ca984cf88118230e1799573a6bda11524a4a70610",
+    "DigestNote": "Recorded. Case 001's was not, which cost it four of the eight dimensions permanently."
+  },
+  "Evidence": {
+    "LinkerMap": "evidence/output.map.gz",
+    "MapBytes": 130879,
+    "ParsedBy": "cres_t4.service.linker_map.parse and the Go collector's internal/linkermap, which agree exactly",
+    "Totals": {
+      "Archives": 2,
+      "Objects": 115,
+      "LinkedBytes": 16184,
+      "ObjectBytes": 14520,
+      "ArchiveBytes": 1664,
+      "MetadataBytes": 47309
+    },
+    "TotalsNote": "LinkedBytes here is 16,184 -- BYTE FOR BYTE what case 002 reports. Same sources, same flags, same target, dependency packaged two different ways, identical bytes in the device. That is the strongest reproducibility result in the corpus and it was only visible after both readers stopped counting the 47,309 bytes of DWARF and build attributes this ELF also carries.",
+    "ObjectCountNote": "115 objects: 108 Mbed TLS translation units, 5 toolchain startup objects, the app's main.o, and one crtend placeholder the map names with a wildcard. THREE of the 108 contributed bytes."
+  },
+  "Scoreable": ["components", "versions", "licences", "scope", "provenance", "schema", "false-positives", "binding"],
+  "NotScoreable": {}
+}

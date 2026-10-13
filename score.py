@@ -235,9 +235,13 @@ def _schema():
 
     verdict = schema_validation.validate(raw)
     if not verdict.get('Validated'):
+        # BUILT WITHOUT A NESTED f-STRING ON PURPOSE. A multi-line f-string carrying the same
+        # quote character inside its braces is valid only from Python 3.12 (PEP 701), and this
+        # corpus is meant to run on whatever python3 a reader happens to have -- it failed outright
+        # on debian:bookworm's 3.11, which is the image its own cases are built in.
+        caveat = verdict.get('Caveat') or 'the document could not be checked against a schema'
         return {'Value': None, 'Format': verdict.get('Format'),
-                'Reason': f"Not scored: {verdict.get('Caveat') or 'the document could not be '
-                                         'checked against a schema'}"}
+                'Reason': 'Not scored: ' + caveat}
     return {
         'Value': 1.0 if verdict.get('Valid') else 0.0,
         'Format': verdict.get('Format'),

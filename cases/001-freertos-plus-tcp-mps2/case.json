@@ -42,12 +42,27 @@
     "Totals": {
       "Archives": 3,
       "Objects": 56,
+      "LinkedBytes": 90445,
+      "ObjectBytes": 77385,
+      "ArchiveBytes": 13060,
+      "MetadataBytes": 206582
+    },
+    "PreviousTotals": {
+      "Archives": 3,
+      "Objects": 56,
       "LinkedBytes": 297027,
       "ObjectBytes": 81500,
       "ArchiveBytes": 215527
-    }
+    },
+    "TotalsNote": "CORRECTED 2026-10-13. These figures were re-established after a defect was found in BOTH map readers -- cres_t4.service.linker_map and the Go collector's internal/linkermap. Every sized line in the memory map was being counted, including the output sections an ELF file carries and a device does not run: .debug_*, .comment, .ARM.attributes, .riscv.attributes. Those are stripped before the image is flashed, so counting them inflated every figure by a factor that depends on nothing but the compiler's -g setting. The previous totals are kept in PreviousTotals so the size of the error stays on the record, and the bytes are now reported separately as MetadataBytes rather than dropped."
   },
-  "Scoreable": ["components", "scope", "provenance", "schema", "false-positives"],
+  "Scoreable": [
+    "components",
+    "scope",
+    "provenance",
+    "schema",
+    "false-positives"
+  ],
   "NotScoreable": {
     "versions": "No recorded commit, so no component version is established.",
     "licences": "Recorded from each project's published licensing but NOT checked against the LICENSE files in the built tree, so not independently verified.",

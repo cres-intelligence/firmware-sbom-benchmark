@@ -24,10 +24,15 @@
     "Container": "debian:bookworm",
     "ContainerNote": "libnewlib-arm-none-eabi is a SEPARATE Debian package. gcc-arm-none-eabi alone gives a compiler with no libc headers and the build fails on `string.h: No such file or directory`. The Dockerfile in this directory has the full list.",
     "Flags": [
-      "-mcpu=cortex-m3", "-mthumb", "-Os",
-      "-ffunction-sections", "-fdata-sections",
-      "-Wl,--gc-sections", "-Wl,-Map=output.map",
-      "--specs=nosys.specs", "--specs=nano.specs"
+      "-mcpu=cortex-m3",
+      "-mthumb",
+      "-Os",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-Wl,--gc-sections",
+      "-Wl,-Map=output.map",
+      "--specs=nosys.specs",
+      "--specs=nano.specs"
     ],
     "ConfigNote": "A deliberately minimal MBEDTLS_CONFIG_FILE (baremetal_config.h) enabling only AES, SHA-256 and their dependencies. The build still compiles every enabled module into the archive; the image needs three. That gap is the measurement."
   },
@@ -49,10 +54,19 @@
     "Totals": {
       "Archives": 3,
       "Objects": 7,
+      "LinkedBytes": 16184,
+      "ObjectBytes": 488,
+      "ArchiveBytes": 15696,
+      "MetadataBytes": 42107
+    },
+    "PreviousTotals": {
+      "Archives": 3,
+      "Objects": 7,
       "LinkedBytes": 58291,
       "ObjectBytes": 1301,
       "ArchiveBytes": 56990
-    }
+    },
+    "TotalsNote": "CORRECTED 2026-10-13. These figures were re-established after a defect was found in BOTH map readers -- cres_t4.service.linker_map and the Go collector's internal/linkermap. Every sized line in the memory map was being counted, including the output sections an ELF file carries and a device does not run: .debug_*, .comment, .ARM.attributes, .riscv.attributes. Those are stripped before the image is flashed, so counting them inflated every figure by a factor that depends on nothing but the compiler's -g setting. The previous totals are kept in PreviousTotals so the size of the error stays on the record, and the bytes are now reported separately as MetadataBytes rather than dropped."
   },
   "Reproducibility": {
     "Measured": true,
@@ -61,8 +75,16 @@
     "IdenticalMap": true,
     "Note": "Built twice in a fresh container; both the artifact digest and the map bytes were identical. THE TWO-STEP COMPILE-THEN-LINK IS WHY. Doing both in one gcc invocation leaves the app's object as a compiler temporary -- /tmp/ccM19uij.o -- whose name differs on every run, so two equivalent builds produce different maps and reproducibility could never pass. A corpus case has to be reproducible before it can measure anything."
   },
-  "Scoreable": ["components", "versions", "licences", "scope", "provenance", "false-positives",
-                "reproducibility", "binding"],
+  "Scoreable": [
+    "components",
+    "versions",
+    "licences",
+    "scope",
+    "provenance",
+    "false-positives",
+    "reproducibility",
+    "binding"
+  ],
   "NotScoreable": {
     "newlib-version": "newlib's own version is not in the archive paths -- only GCC's is -- and the toolchain package manifest was not captured."
   }
