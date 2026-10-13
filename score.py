@@ -33,6 +33,10 @@ CASES = os.path.join(HERE, 'cases')
 
 NOT_ESTABLISHED = 'not-established'
 
+#: THE BYTES THE TOOL EMITTED, kept so the schema dimension sees the document rather than our
+#: parse of it. A schema check over a reparsed object would validate our reader, not their output.
+_RAW = {}
+
 
 def normalise(name):
     """The corpus's matching rule, stated once.
@@ -64,6 +68,7 @@ def read_candidate(path):
     """
     with open(path, 'rb') as handle:
         raw = handle.read()
+    _RAW['bytes'] = raw
 
     try:
         sys.path.insert(0, os.path.dirname(HERE))
@@ -163,11 +168,7 @@ def score(truth, candidate, case_dir=None):
             'LicenceAccuracy': licence,
             'ScopeAccuracy': scope,
             'ProvenanceCoverage': _rounded(provenance),
-            'SchemaValidity': {'Value': None,
-                               'Reason': 'Not scored here: the tier validates a document against '
-                                         'its declared standard on ingest, and duplicating that '
-                                         'check with a second implementation is how two readers '
-                                         'disagree. Run it through the tier.'},
+            'SchemaValidity': _schema(),
             'RuntimeSeconds': None,
             'Reproducible': None,
         },
@@ -176,6 +177,63 @@ def score(truth, candidate, case_dir=None):
         'FalseNegatives': missed,
         'Counts': {'TruthComponents': total, 'Reported': len(candidate), 'Matched': found},
     }
+
+
+def _schema():
+    """Dimension 5, by REUSING the tier's validator rather than writing a second one.
+
+    The earlier version of this scorer refused to score schema validity, on the grounds that a
+    second implementation is how two readers come to disagree. That reasoning was right about
+    duplication and wrong about the conclusion: `cres_t4.service.schema_validation` already holds
+    the published CycloneDX and SPDX schemas and is what the product itself validates with, so
+    calling it is reuse. A benchmark that declined to score a dimension it could simply ASK about
+    was leaving the card at seven of eight for no reason.
+
+    IT VALIDATES THE BYTES THE TOOL EMITTED, not our parse of them. Re-serialising our own
+    component rows and checking those would validate this scorer's reader.
+    """
+    raw = _RAW.get('bytes')
+    if not raw:
+        return {'Value': None, 'Reason': 'Not scored: no document bytes were read.'}
+    try:
+        sys.path.insert(0, os.path.dirname(HERE))
+        from cres_t4.service import schema_validation
+    except ImportError:
+        return {'Value': None,
+                'Reason': 'Not scored: cres_t4.service.schema_validation could not be imported, '
+                          'so there is nothing to validate against. Run this from the t4 '
+                          'repository with cres-aws on PYTHONPATH.'}
+
+    verdict = schema_validation.validate(raw)
+    if not verdict.get('Validated'):
+        return {'Value': None, 'Format': verdict.get('Format'),
+                'Reason': f"Not scored: {verdict.get('Caveat') or 'the document could not be '
+                                         'checked against a schema'}"}
+    return {
+        'Value': 1.0 if verdict.get('Valid') else 0.0,
+        'Format': verdict.get('Format'),
+        'SpecVersion': verdict.get('SpecVersion'),
+        'SchemaUsed': verdict.get('SchemaUsed'),
+        'ErrorCount': verdict.get('ErrorCount'),
+        # THE FIRST FEW ERRORS, NOT A COUNT. "3 schema errors" is not actionable; the paths are.
+        'Errors': (verdict.get('Errors') or [])[:5],
+        'Reason': None if verdict.get('Valid') else
+                  f"{verdict.get('ErrorCount')} schema error(s) against "
+                  f"{verdict.get('SchemaUsed')}",
+    }
+
+
+#: How each dimension reads. Anything absent is a ratio, which is the common case.
+_UNITS = {'RuntimeSeconds': 'seconds', 'Reproducible': 'boolean'}
+
+
+def _formatted(key, value):
+    unit = _UNITS.get(key)
+    if unit == 'seconds':
+        return f'{value:.4f}s (median of the repetitions)'
+    if unit == 'boolean':
+        return 'yes' if value else 'NO -- equivalent runs produced different bytes'
+    return f'{value:.1%}'
 
 
 def _rounded(value):
@@ -299,7 +357,11 @@ def render(result, meta, reader):
         elif value is None:
             out.append(f"  {key:22} not measured")
         else:
-            out.append(f"  {key:22} {value:.1%}")
+            # NOT EVERY DIMENSION IS A RATIO, and formatting them as one produced
+            # "RuntimeSeconds 0.3%" for 0.0027 seconds and "Reproducible 100.0%" for True. A
+            # benchmark reporting a runtime as a percentage is exactly the meaningless number this
+            # corpus exists to replace.
+            out.append(f"  {key:22} {_formatted(key, value)}")
     out.append('')
     out.append(f"false positives  {', '.join(result['FalsePositives']) or 'none'}")
     out.append(f"false negatives  {', '.join(result['FalseNegatives']) or 'none'}")

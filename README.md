@@ -49,9 +49,25 @@ refuses to score them. Case 002 records all of it, and so can score the dimensio
 | 7 | **Reproducibility** | Identical output across equivalent runs |
 | 8 | **False positives and negatives** | Named individually, never summarised away |
 
-Dimensions 1–5 and 8 are properties of a **document** and the scorer computes them. Dimensions 6
-and 7 are properties of a **tool run**, so the harness measures them and passes them in; the scorer
-records what it was given and says so rather than inventing them.
+**All eight are computed.** Dimensions 1–5 and 8 are properties of a **document**, so `score.py`
+reads them off the file — dimension 5 by calling the tier's own `schema_validation`, which holds
+the published CycloneDX and SPDX schemas, rather than shipping a second validator for two readers
+to disagree with.
+
+Dimensions 6 and 7 are properties of a **run**: you cannot read them off an output, you have to
+execute the thing. **`run.py`** does that — at least five repetitions, the median wall time with
+its spread, peak RSS per repetition, and reproducibility as a digest comparison:
+
+```bash
+python3 benchmark/run.py --case 002-mbedtls-vendor-archive-cortex-m3 \
+    --command 'my-collector --map {case}/evidence/output.map.gz --out {out}' --repeat 5
+```
+
+It refuses rather than producing a meaningless number: **fewer than five repetitions** (the
+protocol's floor — one run is an anecdote), **a command without `{out}`** (nothing to score), and
+**a tool that exited non-zero** (a partial document parses as a shorter one, so the number would
+flatter it). Reproducibility is reported as **yes or no**, never a percentage: either equivalent
+runs produced the same bytes or they did not.
 
 ## A dimension whose truth is not established is NOT SCORED
 
