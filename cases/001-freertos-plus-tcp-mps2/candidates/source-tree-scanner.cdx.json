@@ -1,0 +1,18 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {"type": "firmware", "name": "freertos_tcp_mps2_demo", "version": "0.0.0"},
+    "tools": [{"name": "example-source-tree-scanner", "version": "0.0.0"}]
+  },
+  "components": [
+    {"type": "library", "name": "FreeRTOS-Plus-TCP", "bom-ref": "s1"},
+    {"type": "library", "name": "FreeRTOS", "bom-ref": "s2"},
+    {"type": "library", "name": "newlib", "bom-ref": "s3"},
+    {"type": "library", "name": "FreeRTOS_DHCPv6", "bom-ref": "s4"},
+    {"type": "library", "name": "FreeRTOS_TCP_IP_IPv6", "bom-ref": "s5"},
+    {"type": "library", "name": "FreeRTOS_Tiny_TCP", "bom-ref": "s6"},
+    {"type": "library", "name": "TCPEchoClient_SingleTasks", "bom-ref": "s7"}
+  ]
+}

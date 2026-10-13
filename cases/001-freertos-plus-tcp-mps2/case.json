@@ -1,0 +1,56 @@
+{
+  "Case": "001-freertos-plus-tcp-mps2",
+  "Name": "FreeRTOS-Plus-TCP echo client on MPS2 AN385",
+  "Why": "A real embedded project nobody here wrote, whose build discards seven compiled translation units. It is the smallest case that distinguishes a tool reading the source tree from a tool reading the link.",
+  "Upstream": {
+    "Project": "FreeRTOS/FreeRTOS",
+    "Url": "https://github.com/FreeRTOS/FreeRTOS",
+    "Demo": "FreeRTOS-Plus/Demo/FreeRTOS_Plus_TCP_Echo_Qemu_mps2",
+    "Commit": null,
+    "CommitNote": "NOT RECORDED when the tree was built on 2026-10-12, and the 1.6GB clone is gone. This is why component versions are not-established for this case: with no commit there is no way back to the manifest files that would settle them. Re-cloning and rebuilding at a recorded commit is the first fix, and BUILD.md gives the recipe."
+  },
+  "Target": {
+    "Architecture": "arm",
+    "Cpu": "Cortex-M3",
+    "Abi": "thumb/v7-m/nofp",
+    "Board": "MPS2 AN385",
+    "Emulator": "qemu-system-arm"
+  },
+  "Toolchain": {
+    "Compiler": "arm-none-eabi-gcc",
+    "Version": "12.2.1",
+    "Container": "debian:bookworm",
+    "Linker": "GNU ld",
+    "Flags": [
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-Xlinker --gc-sections",
+      "-Xlinker -Map=build/output.map"
+    ],
+    "FlagNote": "The demo's own Makefile already emits the map with --gc-sections, unchanged by us. That matters: the configuration this case depends on is the project's, not one we imposed to make the result come out."
+  },
+  "Artifacts": {
+    "Image": "freertos_tcp_mps2_demo.axf",
+    "TextBytes": 80540,
+    "ImageDigest": null,
+    "ImageDigestNote": "NOT RECORDED, and the artifact was not kept. Dimension 'bound to the binary' cannot be scored on this case until it is rebuilt."
+  },
+  "Evidence": {
+    "LinkerMap": "evidence/output.map.gz",
+    "MapBytes": 309000,
+    "ParsedBy": "cres_t4.service.linker_map.parse",
+    "Totals": {
+      "Archives": 3,
+      "Objects": 56,
+      "LinkedBytes": 297027,
+      "ObjectBytes": 81500,
+      "ArchiveBytes": 215527
+    }
+  },
+  "Scoreable": ["components", "scope", "provenance", "schema", "false-positives"],
+  "NotScoreable": {
+    "versions": "No recorded commit, so no component version is established.",
+    "licences": "Recorded from each project's published licensing but NOT checked against the LICENSE files in the built tree, so not independently verified.",
+    "binding": "No artifact digest was recorded."
+  }
+}

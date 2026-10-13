@@ -1,0 +1,131 @@
+{
+  "Case": "001-freertos-plus-tcp-mps2",
+  "GroundTruthVersion": 1,
+  "Established": "2026-10-13",
+  "Method": "Derived from the GNU ld map in evidence/output.map.gz, parsed by cres_t4.service.linker_map.parse. Byte figures are the linker's own accounting, not an estimate. No tool's bill of materials was consulted: a corpus whose truth came from a scanner measures agreement with that scanner.",
+  "Matching": "A candidate component matches a ground-truth entry when its name, lower-cased with punctuation removed, equals the entry's Name or any of its AcceptableNames. Anything else is a false positive and any unmatched entry is a false negative. Both are named individually in the score, never summarised away.",
+
+  "Components": [
+    {
+      "Name": "FreeRTOS-Plus-TCP",
+      "AcceptableNames": ["freertosplustcp", "freertostcp", "freertos-plus-tcp"],
+      "Version": null,
+      "VersionConfidence": "not-established",
+      "VersionNote": "No commit was recorded for the built tree, so there is nothing to establish a version from. The map carries no version information -- it never does.",
+      "Licence": "MIT",
+      "LicenceConfidence": "heuristic",
+      "LicenceNote": "The project's published licensing. NOT checked against a LICENSE file in the built tree, so it does not meet the protocol's 'independently verified' bar.",
+      "Scope": "shipped",
+      "ScopeConfidence": "pinned",
+      "Evidence": {
+        "Objects": 45,
+        "LinkedBytes": 67453,
+        "DiscardedObjects": 7,
+        "DiscardedNames": [
+          "FreeRTOS_BitConfig.o",
+          "FreeRTOS_DHCPv6.o",
+          "FreeRTOS_DNS_Callback.o",
+          "FreeRTOS_DNS_Networking.o",
+          "FreeRTOS_TCP_IP_IPv4.o",
+          "FreeRTOS_TCP_IP_IPv6.o",
+          "FreeRTOS_Tiny_TCP.o"
+        ],
+        "Directories": [
+          "FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source",
+          "FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/BufferManagement",
+          "FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/MPS2_AN385",
+          "FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/MPS2_AN385/ether_lan9118"
+        ]
+      },
+      "Uncertainty": "THE SEVEN DISCARDED OBJECTS ARE THE POINT OF THIS CASE. They were compiled -- the build produced object files -- and the linker put none of their bytes in the image: IPv6, DHCPv6, two DNS modules, the IPv4 and IPv6 TCP paths, and Tiny TCP. The component itself shipped, so this entry's Scope is 'shipped'; a tool claiming the DHCPv6 or IPv6 code shipped is wrong, and DiscardedNames is what scope accuracy is measured against."
+    },
+    {
+      "Name": "FreeRTOS kernel",
+      "AcceptableNames": ["freertos", "freertoskernel", "freertos-kernel"],
+      "Version": null,
+      "VersionConfidence": "not-established",
+      "VersionNote": "As above: no recorded commit.",
+      "Licence": "MIT",
+      "LicenceConfidence": "heuristic",
+      "LicenceNote": "The project's published licensing, not verified against the tree.",
+      "Scope": "shipped",
+      "ScopeConfidence": "pinned",
+      "Evidence": {
+        "Objects": 6,
+        "LinkedBytes": 6822,
+        "DiscardedObjects": 0,
+        "Directories": [
+          "FreeRTOS/Source",
+          "FreeRTOS/Source/portable/GCC/ARM_CM3",
+          "FreeRTOS/Source/portable/MemMang"
+        ]
+      },
+      "Uncertainty": "Six objects of a kernel that has far more: a build selects one port (ARM_CM3) and one heap implementation (heap_3), so the absent ones are a configuration choice rather than dead code. Reporting the kernel once is right; reporting 'FreeRTOS heap_3' as a component is a granularity error, not a false positive, and the score says which."
+    },
+    {
+      "Name": "newlib",
+      "AcceptableNames": ["newlib", "libcnano", "libc", "newlibnano"],
+      "Version": null,
+      "VersionConfidence": "not-established",
+      "VersionNote": "The archive paths carry the GCC version (12.2.1), not newlib's own. Establishing it needs the toolchain package's manifest, which was not kept.",
+      "Licence": null,
+      "LicenceConfidence": "not-established",
+      "LicenceNote": "newlib is a COLLECTION under several licences -- BSD variants plus historical terms on individual files -- and naming one would be wrong. A real answer requires reading the tree's COPYING.NEWLIB.",
+      "Scope": "shipped",
+      "ScopeConfidence": "pinned",
+      "Evidence": {
+        "Archives": [
+          "libc_nano.a",
+          "librdimon_nano.a"
+        ],
+        "LinkedBytes": 206111,
+        "MembersPulledIn": 49,
+        "ArchiveBytes": {
+          "libc_nano.a": 174344,
+          "librdimon_nano.a": 31767
+        }
+      },
+      "Uncertainty": "ONE COMPONENT, TWO ARCHIVES, and that is a judgement. librdimon_nano.a is newlib's semihosting stub library and comes from the same upstream project, so a bill of materials naming 'newlib' once is correct. A tool reporting both archives separately is not wrong about the bytes -- it is answering at a different granularity, and AcceptableNames admits either so this does not register as a false positive. It is also the single largest component in the image at 206KB of 297KB, which is worth knowing before anybody reports this firmware as 'mostly FreeRTOS'."
+    },
+    {
+      "Name": "libgcc",
+      "AcceptableNames": ["libgcc", "gcc", "gccruntime", "libgccs"],
+      "Version": "12.2.1",
+      "VersionConfidence": "heuristic",
+      "VersionNote": "Read from the archive's own path (/usr/lib/gcc/arm-none-eabi/12.2.1/...), which is the compiler's version and in practice libgcc's too. Heuristic rather than pinned because the path is a filesystem layout, not a manifest.",
+      "Licence": "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "LicenceConfidence": "heuristic",
+      "LicenceNote": "libgcc's published terms. The runtime exception is the part that matters to a device maker and the part most tools drop, reporting bare GPL-3.0 and implying an obligation that does not apply.",
+      "Scope": "shipped",
+      "ScopeConfidence": "pinned",
+      "Evidence": {
+        "Archives": ["libgcc.a"],
+        "LinkedBytes": 9416,
+        "MembersPulledIn": 4,
+        "PulledInNote": "Four members, all integer division helpers the Cortex-M3 has no instruction for."
+      },
+      "Uncertainty": "Compiler runtime rather than a dependency anybody chose, which is exactly why it is missed: nothing in the source tree mentions it and it is in every image."
+    }
+  ],
+
+  "NotComponents": [
+    {
+      "Name": "the demo application",
+      "Why": "First-party code -- the echo client and its startup. Five objects, 7,225 bytes, under build/ with no upstream. A tool reporting these as third-party components is producing false positives, and the score counts them as such.",
+      "Objects": 5,
+      "LinkedBytes": 7225,
+      "ObjectNames": ["TCPEchoClient_SingleTasks.o"]
+    }
+  ],
+
+  "Open": [
+    {
+      "Question": "Is the LAN9118 Ethernet driver its own component?",
+      "Detail": "smsc9220_eth_drv.o (1,722 bytes) sits under FreeRTOS-Plus-TCP/source/portable/NetworkInterface/MPS2_AN385/ether_lan9118 -- vendor driver code vendored inside the network stack's portable layer. It is currently counted inside FreeRTOS-Plus-TCP. A device maker auditing for a vulnerability in that driver would want it named. Resolving this needs the upstream provenance, which needs the recorded commit."
+    },
+    {
+      "Question": "Does the total reconcile?",
+      "Detail": "67453 + 6822 + 206111 + 9416 = 289802 across the four components, plus 7225 of first-party code = 297027, which is the map's own LinkedBytes. It reconciles exactly, and a case whose bytes do not reconcile is a case whose truth is not established."
+    }
+  ]
+}
