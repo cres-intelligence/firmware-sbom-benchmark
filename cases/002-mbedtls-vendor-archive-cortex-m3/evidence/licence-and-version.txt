@@ -1,0 +1,10 @@
+Mbed TLS files are provided under a dual [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html)
+OR [GPL-2.0-or-later](https://spdx.org/licenses/GPL-2.0-or-later.html) license.
+This means that users may choose which of these licenses they take the code
+under.
+
+--- SPDX in the three members that shipped ---
+ *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
+
+--- declared version ---
+#define MBEDTLS_VERSION_STRING         "3.6.2"

@@ -1,0 +1,69 @@
+{
+  "Case": "002-mbedtls-vendor-archive-cortex-m3",
+  "Name": "Mbed TLS as a vendor static archive, Cortex-M3",
+  "Why": "The shape case 001 only exercised by analogy. A vendor SDK ships libmbedcrypto.a carrying 86 object files; this firmware needs three of them. Nothing in the source tree, the build files or the archive itself says which three -- only the link does. It also fixes everything case 001 could not establish: the commit is recorded, the artifact is hashed, the version is read from the built header and the licence from the SPDX identifiers of the members that shipped.",
+  "Upstream": {
+    "Project": "Mbed-TLS/mbedtls",
+    "Url": "https://github.com/Mbed-TLS/mbedtls",
+    "Tag": "v3.6.2",
+    "Commit": "107ea89daaefb9867ea9121002fbbdf926780e98",
+    "Submodules": {
+      "framework": "94599c0e3b5036e086446a51a3f79640f70f22f6"
+    }
+  },
+  "Target": {
+    "Architecture": "arm",
+    "Cpu": "Cortex-M3",
+    "Abi": "thumb/v7-m/nofp",
+    "Board": "none -- a link target, not a runnable image"
+  },
+  "Toolchain": {
+    "Compiler": "arm-none-eabi-gcc",
+    "Version": "12.2.1 20221205 (15:12.2.rel1-1)",
+    "Linker": "GNU ld 2.40",
+    "Container": "debian:bookworm",
+    "ContainerNote": "libnewlib-arm-none-eabi is a SEPARATE Debian package. gcc-arm-none-eabi alone gives a compiler with no libc headers and the build fails on `string.h: No such file or directory`. The Dockerfile in this directory has the full list.",
+    "Flags": [
+      "-mcpu=cortex-m3", "-mthumb", "-Os",
+      "-ffunction-sections", "-fdata-sections",
+      "-Wl,--gc-sections", "-Wl,-Map=output.map",
+      "--specs=nosys.specs", "--specs=nano.specs"
+    ],
+    "ConfigNote": "A deliberately minimal MBEDTLS_CONFIG_FILE (baremetal_config.h) enabling only AES, SHA-256 and their dependencies. The build still compiles every enabled module into the archive; the image needs three. That gap is the measurement."
+  },
+  "Artifacts": {
+    "Image": "app.elf",
+    "ImageDigest": "sha256:0d0703ca9b2e643a7faad68d53e44a8bd872c6bf7b44fc010a939d635a465c2a",
+    "TextBytes": 7080,
+    "DataBytes": 112,
+    "BssBytes": 9000
+  },
+  "Evidence": {
+    "LinkerMap": "evidence/output.map.gz",
+    "ParsedBy": "cres_t4.service.linker_map.parse",
+    "MembersInArchive": "evidence/members-in-archive.txt",
+    "MembersPulledIn": "evidence/members-pulled-in.txt",
+    "MembersNeverPulled": "evidence/members-never-pulled.txt",
+    "LicenceAndVersion": "evidence/licence-and-version.txt",
+    "Provenance": "evidence/provenance.txt",
+    "Totals": {
+      "Archives": 3,
+      "Objects": 7,
+      "LinkedBytes": 58291,
+      "ObjectBytes": 1301,
+      "ArchiveBytes": 56990
+    }
+  },
+  "Reproducibility": {
+    "Measured": true,
+    "Runs": 2,
+    "IdenticalArtifact": true,
+    "IdenticalMap": true,
+    "Note": "Built twice in a fresh container; both the artifact digest and the map bytes were identical. THE TWO-STEP COMPILE-THEN-LINK IS WHY. Doing both in one gcc invocation leaves the app's object as a compiler temporary -- /tmp/ccM19uij.o -- whose name differs on every run, so two equivalent builds produce different maps and reproducibility could never pass. A corpus case has to be reproducible before it can measure anything."
+  },
+  "Scoreable": ["components", "versions", "licences", "scope", "provenance", "false-positives",
+                "reproducibility", "binding"],
+  "NotScoreable": {
+    "newlib-version": "newlib's own version is not in the archive paths -- only GCC's is -- and the toolchain package manifest was not captured."
+  }
+}

@@ -129,7 +129,7 @@ def _first_party_names(truth):
     return out
 
 
-def score(truth, candidate):
+def score(truth, candidate, case_dir=None):
     pairs, unmatched, missed = match(truth, candidate)
     found = len(pairs)
     total = len(truth['Components'])
@@ -146,7 +146,7 @@ def score(truth, candidate):
     # 3. SCOPE ACCURACY. Did the tool claim anything shipped that the linker discarded? The
     #    discarded translation units are named in the truth, so a candidate naming one as a
     #    component -- or naming the feature it implements -- is measurably wrong.
-    scope = _scope(truth, unmatched)
+    scope = _scope(truth, unmatched, case_dir)
 
     # 4. PROVENANCE COVERAGE: the proportion of reported components carrying something inspectable.
     #    A purl or a CPE is an identifier somebody else can look up; a bare name is not.
@@ -209,7 +209,27 @@ def _field_accuracy(truth, pairs, field):
                        f'{", ".join(skipped)}.' if skipped else None)}
 
 
-def _scope(truth, unmatched):
+def _discarded_names(entry, case_dir):
+    """The object or member names a component was compiled with and did NOT ship.
+
+    READ FROM AN EVIDENCE FILE WHERE THERE IS ONE. Case 001 lists seven discarded objects inline;
+    case 002 has eighty-three unpulled archive members, which belong in
+    `evidence/members-never-pulled.txt` rather than inflating the truth file. Both are the same
+    claim -- compiled, not in the image -- so both reach the scope dimension.
+    """
+    evidence = entry.get('Evidence') or {}
+    names = list(evidence.get('DiscardedNames') or [])
+
+    listed = (evidence.get('Lists') or {}).get('NeverPulled')
+    if listed and case_dir:
+        path = os.path.join(case_dir, listed)
+        if os.path.exists(path):
+            with open(path, encoding='utf-8') as handle:
+                names += [line.strip() for line in handle if line.strip()]
+    return names
+
+
+def _scope(truth, unmatched, case_dir=None):
     """Did the candidate claim a discarded translation unit shipped?
 
     THE DIMENSION THIS CORPUS WAS BUILT FOR. Case 001's seven discarded objects are the test: a
@@ -226,7 +246,7 @@ def _scope(truth, unmatched):
     """
     discarded = {}
     for entry in truth['Components']:
-        for name in (entry.get('Evidence', {}).get('DiscardedNames') or []):
+        for name in _discarded_names(entry, case_dir):
             discarded[normalise(os.path.splitext(name)[0])] = entry['Name']
     if not discarded:
         return {'Value': None, 'Checked': 0,
@@ -267,9 +287,15 @@ def render(result, meta, reader):
             out.append(f"  {key:22} {shown}")
             if value.get('Reason'):
                 out.append(f"  {'':22} -- {value['Reason']}")
-            for one in (value.get('ClaimedShipped') or []):
+            # NAMED, BUT NOT 83 LINES OF TERMINAL. The protocol's requirement is that a false
+            # claim is identifiable rather than summarised away, and --json carries every one;
+            # a human reading a report needs the first few and the count.
+            claimed = value.get('ClaimedShipped') or []
+            for one in claimed[:10]:
                 out.append(f"  {'':22} !! reported {one['Reported']!r}, discarded from "
                            f"{one['DiscardedFrom']}")
+            if len(claimed) > 10:
+                out.append(f"  {'':22} .. and {len(claimed) - 10} more; --json lists them all")
         elif value is None:
             out.append(f"  {key:22} not measured")
         else:
@@ -304,7 +330,7 @@ def main():
 
     meta, truth = load_case(args.case)
     candidate, reader = read_candidate(args.sbom)
-    result = score(truth, candidate)
+    result = score(truth, candidate, case_dir=os.path.join(CASES, args.case))
 
     if args.runtime_seconds is not None:
         result['Dimensions']['RuntimeSeconds'] = args.runtime_seconds

@@ -23,6 +23,18 @@ the point of having a corpus at all.
 
 ---
 
+## The cases
+
+| case | what it is for | establishes |
+|---|---|---|
+| **001** `freertos-plus-tcp-mps2` | Loose object files, and seven compiled translation units the linker discarded | scope, components, provenance |
+| **002** `mbedtls-vendor-archive-cortex-m3` | **A vendor `.a`** — `libmbedcrypto.a` with 86 members, of which the image needs 3 | scope, components, **versions**, **licences**, **reproducibility**, **binary binding** |
+
+The two are complementary on purpose. Case 001 is strong evidence with weak provenance: its build
+recorded no commit and kept no artifact, so its versions cannot be established and the scorer
+refuses to score them. Case 002 records all of it, and so can score the dimensions case 001 cannot.
+**The protocol's answer to a gap is to state it, not to fill it with a guess.**
+
 ## The eight dimensions
 
 | # | Dimension | What it measures |
@@ -99,10 +111,9 @@ judgement, and it is written down as one.
 Stated here because a corpus's limits are part of its result:
 
 * **GNU ld only.** IAR, armlink (Keil) and TI emit different, under-specified map formats. Untested.
-* **Loose object files.** Case 001's only archives are the toolchain's own `libc_nano.a`,
-  `librdimon_nano.a` and `libgcc.a`. A vendor SDK shipping `libmbedtls.a` — the common real case —
-  is exercised only by analogy.
-* **One architecture.** Cortex-M3, one build configuration, one network stack.
+* **One architecture.** Cortex-M3 in both cases, one build configuration each.
+* **Two projects.** FreeRTOS and Mbed TLS. Both widely used in medical device firmware, neither a
+  substitute for the breadth a published corpus eventually needs.
 * **No comparison yet.** Nothing has been scored against this. Syft and Trivy are not firmware
   tools, but running them anyway and publishing what happens is worth doing.
 
