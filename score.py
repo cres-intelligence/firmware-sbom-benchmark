@@ -95,11 +95,40 @@ def read_candidate(path):
     return [{
         'Name': one.get('name'),
         'Version': one.get('version'),
-        'Licence': None,
+        'Licence': _fallback_licence(one),
         'Purl': one.get('purl'),
         'Cpe': one.get('cpe'),
         'Raw': one,
     } for one in (document.get('components') or [])], 'fallback CycloneDX JSON reader'
+
+
+def _fallback_licence(component):
+    """A CycloneDX component's licence, for the reader that runs without the product.
+
+    THIS USED TO RETURN NOTHING, AND THAT WAS THE WORST KIND OF BUG THIS CORPUS CAN HAVE. With the
+    product unavailable the fallback reported every licence as absent, so `LicenceAccuracy` scored
+    **0%** against a document that had them all right -- the corpus blaming a tool for its own
+    inability to read. Found by running the corpus standing alone outside the repository, which is
+    exactly the condition a published corpus is used in.
+
+    CycloneDX writes a licence two ways and both are ordinary: an SPDX expression, or a list of
+    license objects with an `id` or a `name`. Joined with AND, which is what a list on one
+    component means.
+    """
+    licences = component.get('licenses') or []
+    if isinstance(licences, dict):                               # a single object, not a list
+        licences = [licences]
+    found = []
+    for one in licences:
+        if not isinstance(one, dict):
+            continue
+        if one.get('expression'):
+            found.append(str(one['expression']))
+            continue
+        inner = one.get('license') or {}
+        if isinstance(inner, dict) and (inner.get('id') or inner.get('name')):
+            found.append(str(inner.get('id') or inner.get('name')))
+    return ' AND '.join(found) or None
 
 
 def _names_of(entry):
