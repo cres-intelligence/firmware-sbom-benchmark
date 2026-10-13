@@ -30,6 +30,7 @@ the point of having a corpus at all.
 | **001** `freertos-plus-tcp-mps2` | Loose object files, and seven compiled translation units the linker discarded | scope, components, provenance |
 | **002** `mbedtls-vendor-archive-cortex-m3` | **A vendor `.a`** — `libmbedcrypto.a` with 86 members, of which the image needs 3 | scope, components, **versions**, **licences**, **reproducibility**, **binary binding** |
 | **003** `mbedtls-lld-armv7m` | **A different linker.** The byte-identical archive, linked by LLD instead of GNU ld | that the ANSWER is toolchain-independent and the EVIDENCE is not |
+| **004** `mbedtls-riscv-rv64imac` | **A different architecture.** The same project on RISC-V, GNU ld | that the answer survives the architecture too — and that the compiler runtime's presence does not |
 
 The two are complementary on purpose. Case 001 is strong evidence with weak provenance: its build
 recorded no commit and kept no artifact, so its versions cannot be established and the scorer
@@ -134,9 +135,21 @@ Stated here because a corpus's limits are part of its result:
   information at all. **One real `.map` file from IAR or armlink, with its recipe, is enough to
   write and test a reader for that format.** A specification is not: LLD's format is documented, and
   the thing that mattered is not something the documentation would have told us.
-* **One architecture.** Cortex-M3 in both cases, one build configuration each.
+* **Two architectures.** Cortex-M and RISC-V rv64imac. Nothing big-endian, nothing 8- or 16-bit.
 * **Two projects.** FreeRTOS and Mbed TLS. Both widely used in medical device firmware, neither a
   substitute for the breadth a published corpus eventually needs.
+
+**What the four cases establish together**, which no single case could:
+
+| | 002 Cortex-M, GNU ld | 003 Cortex-M, LLD | 004 RISC-V, GNU ld |
+|---|---|---|---|
+| members pulled in | **aes, platform_util, sha256** | **the same three** | **the same three** |
+| libgcc in the image | yes (division helpers) | **no** | yes (`__bswapsi2`) |
+
+**"Which archive members ship" is independent of the linker and of the architecture** — three
+independent confirmations rather than an assumption. **Which compiler-runtime helpers ship is
+not**: libgcc is a component of two of the three images and of neither the source tree nor any
+manifest.
 * **No comparison yet.** Nothing has been scored against this. Syft and Trivy are not firmware
   tools, but running them anyway and publishing what happens is worth doing.
 

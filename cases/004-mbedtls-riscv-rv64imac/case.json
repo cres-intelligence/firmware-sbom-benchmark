@@ -1,0 +1,53 @@
+{
+  "Case": "004-mbedtls-riscv-rv64imac",
+  "Name": "The same vendor archive on RISC-V, rv64imac soft-float",
+  "Why": "A third architecture, holding everything else still: same project, same commit, same minimal config, same GNU ld. Cases 002 and 003 established that the archive-member decision survives a change of LINKER; this asks whether it survives a change of ARCHITECTURE. It does.",
+  "Upstream": {
+    "Project": "Mbed-TLS/mbedtls",
+    "Tag": "v3.6.2",
+    "Commit": "107ea89daaefb9867ea9121002fbbdf926780e98",
+    "Submodules": {"framework": "94599c0e3b5036e086446a51a3f79640f70f22f6"},
+    "SameAs": "Identical to cases 002 and 003."
+  },
+  "Target": {"Architecture": "riscv", "Isa": "rv64imac", "Abi": "lp64 (soft float)"},
+  "Toolchain": {
+    "Compiler": "riscv64-unknown-elf-gcc 12.2.0",
+    "Linker": "GNU ld 2.40",
+    "Libc": "picolibc, via --specs=picolibc.specs",
+    "Container": "debian:bookworm",
+    "Flags": ["--specs=picolibc.specs", "-march=rv64imac", "-mabi=lp64", "-Os",
+              "-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections",
+              "-Wl,-Map=output.map", "-nostdlib", "-lgcc"]
+  },
+  "Artifacts": {
+    "Image": "app.elf",
+    "ImageDigest": "sha256:6490e81dbf15d0c1fbae3da8aa8fcfb9a216c327e6791d3a10ea02248d9bd096",
+    "TextBytes": 9384,
+    "TextNote": "9,384 bytes against case 003's 7,080 for the same source: RISC-V encodes this code larger."
+  },
+  "Evidence": {
+    "LinkerMap": "evidence/output.map.gz",
+    "ParsedBy": "cres_t4.service.linker_map.parse -- which reads a RISC-V map without changes",
+    "Totals": {"Archives": 2, "Objects": 1, "LinkedBytes": 19848,
+               "ObjectBytes": 334, "ArchiveBytes": 19514}
+  },
+  "Findings": [
+    {
+      "Finding": "THE SAME THREE MEMBERS AGAIN, on a third architecture.",
+      "Detail": "aes.o, platform_util.o and sha256.o -- the same three of 86 that GNU ld chose on Cortex-M (002) and that LLD chose on Cortex-M (003). So 'which archive members ship' is independent of the linker AND of the architecture. That is the premise the whole collector rests on, and it now has three independent confirmations rather than an assumption."
+    },
+    {
+      "Finding": "RISC-V NEEDS A libgcc HELPER THAT CORTEX-M DID NOT, and the map shows it.",
+      "Detail": "The link failed with `undefined reference to __bswapsi2` until -lgcc was added. Base RISC-V has no byte-swap instruction, so mbed TLS's SHA-256 calls libgcc's __bswapsi2 where ARM got a single `rev`. libgcc is therefore a REAL COMPONENT of this image -- 1,298 bytes, exactly one member -- and is not a component of case 003's at all. An architecture-specific dependency that appears in no source file and in no manifest, which is precisely the kind of thing a source-tree scanner cannot find."
+    },
+    {
+      "Finding": "An ISA string with no matching multilib fails as an ABI error.",
+      "Detail": "-march=rv64imac_zicsr is valid ISA syntax and is NOT a shipped multilib, so gcc silently fell back to the default (rv64imafdc/lp64d, double-float) and the link died on `can't link double-float modules with soft-float modules`. The error names the symptom; the cause is a march string nothing was built for. `riscv64-unknown-elf-gcc -print-multi-lib` lists what exists."
+    }
+  ],
+  "Scoreable": ["components", "versions", "licences", "scope", "provenance", "false-positives", "binding"],
+  "NotScoreable": {
+    "reproducibility": "Not measured here; case 002 measures it for the same project.",
+    "picolibc-version": "picolibc ships no version in the paths this build touched, and the package manifest was not captured."
+  }
+}
