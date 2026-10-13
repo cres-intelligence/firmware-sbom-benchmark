@@ -1,0 +1,461 @@
+{
+ "bomFormat": "CycloneDX",
+ "specVersion": "1.6",
+ "version": 1,
+ "metadata": {
+  "component": {
+   "type": "firmware",
+   "name": "app",
+   "version": "0.0.0"
+  },
+  "tools": [
+   {
+    "name": "example-assumes-nothing-discarded",
+    "version": "0.0.0"
+   }
+  ]
+ },
+ "components": [
+  {
+   "type": "library",
+   "name": "Mbed TLS",
+   "version": "3.6.2",
+   "bom-ref": "a-root",
+   "licenses": [
+    {
+     "expression": "Apache-2.0 OR GPL-2.0-or-later"
+    }
+   ]
+  },
+  {
+   "type": "library",
+   "name": "Hacl_Curve25519_joined",
+   "bom-ref": "a0"
+  },
+  {
+   "type": "library",
+   "name": "aes",
+   "bom-ref": "a1"
+  },
+  {
+   "type": "library",
+   "name": "aesce",
+   "bom-ref": "a2"
+  },
+  {
+   "type": "library",
+   "name": "aesni",
+   "bom-ref": "a3"
+  },
+  {
+   "type": "library",
+   "name": "aria",
+   "bom-ref": "a4"
+  },
+  {
+   "type": "library",
+   "name": "asn1parse",
+   "bom-ref": "a5"
+  },
+  {
+   "type": "library",
+   "name": "asn1write",
+   "bom-ref": "a6"
+  },
+  {
+   "type": "library",
+   "name": "base64",
+   "bom-ref": "a7"
+  },
+  {
+   "type": "library",
+   "name": "bignum",
+   "bom-ref": "a8"
+  },
+  {
+   "type": "library",
+   "name": "bignum_core",
+   "bom-ref": "a9"
+  },
+  {
+   "type": "library",
+   "name": "bignum_mod",
+   "bom-ref": "a10"
+  },
+  {
+   "type": "library",
+   "name": "bignum_mod_raw",
+   "bom-ref": "a11"
+  },
+  {
+   "type": "library",
+   "name": "block_cipher",
+   "bom-ref": "a12"
+  },
+  {
+   "type": "library",
+   "name": "camellia",
+   "bom-ref": "a13"
+  },
+  {
+   "type": "library",
+   "name": "ccm",
+   "bom-ref": "a14"
+  },
+  {
+   "type": "library",
+   "name": "chacha20",
+   "bom-ref": "a15"
+  },
+  {
+   "type": "library",
+   "name": "chachapoly",
+   "bom-ref": "a16"
+  },
+  {
+   "type": "library",
+   "name": "cipher",
+   "bom-ref": "a17"
+  },
+  {
+   "type": "library",
+   "name": "cipher_wrap",
+   "bom-ref": "a18"
+  },
+  {
+   "type": "library",
+   "name": "cmac",
+   "bom-ref": "a19"
+  },
+  {
+   "type": "library",
+   "name": "constant_time",
+   "bom-ref": "a20"
+  },
+  {
+   "type": "library",
+   "name": "ctr_drbg",
+   "bom-ref": "a21"
+  },
+  {
+   "type": "library",
+   "name": "des",
+   "bom-ref": "a22"
+  },
+  {
+   "type": "library",
+   "name": "dhm",
+   "bom-ref": "a23"
+  },
+  {
+   "type": "library",
+   "name": "ecdh",
+   "bom-ref": "a24"
+  },
+  {
+   "type": "library",
+   "name": "ecdsa",
+   "bom-ref": "a25"
+  },
+  {
+   "type": "library",
+   "name": "ecjpake",
+   "bom-ref": "a26"
+  },
+  {
+   "type": "library",
+   "name": "ecp",
+   "bom-ref": "a27"
+  },
+  {
+   "type": "library",
+   "name": "ecp_curves",
+   "bom-ref": "a28"
+  },
+  {
+   "type": "library",
+   "name": "ecp_curves_new",
+   "bom-ref": "a29"
+  },
+  {
+   "type": "library",
+   "name": "entropy",
+   "bom-ref": "a30"
+  },
+  {
+   "type": "library",
+   "name": "entropy_poll",
+   "bom-ref": "a31"
+  },
+  {
+   "type": "library",
+   "name": "error",
+   "bom-ref": "a32"
+  },
+  {
+   "type": "library",
+   "name": "everest",
+   "bom-ref": "a33"
+  },
+  {
+   "type": "library",
+   "name": "gcm",
+   "bom-ref": "a34"
+  },
+  {
+   "type": "library",
+   "name": "hkdf",
+   "bom-ref": "a35"
+  },
+  {
+   "type": "library",
+   "name": "hmac_drbg",
+   "bom-ref": "a36"
+  },
+  {
+   "type": "library",
+   "name": "lmots",
+   "bom-ref": "a37"
+  },
+  {
+   "type": "library",
+   "name": "lms",
+   "bom-ref": "a38"
+  },
+  {
+   "type": "library",
+   "name": "md",
+   "bom-ref": "a39"
+  },
+  {
+   "type": "library",
+   "name": "md5",
+   "bom-ref": "a40"
+  },
+  {
+   "type": "library",
+   "name": "memory_buffer_alloc",
+   "bom-ref": "a41"
+  },
+  {
+   "type": "library",
+   "name": "nist_kw",
+   "bom-ref": "a42"
+  },
+  {
+   "type": "library",
+   "name": "oid",
+   "bom-ref": "a43"
+  },
+  {
+   "type": "library",
+   "name": "p256-m",
+   "bom-ref": "a44"
+  },
+  {
+   "type": "library",
+   "name": "p256-m_driver_entrypoints",
+   "bom-ref": "a45"
+  },
+  {
+   "type": "library",
+   "name": "padlock",
+   "bom-ref": "a46"
+  },
+  {
+   "type": "library",
+   "name": "pem",
+   "bom-ref": "a47"
+  },
+  {
+   "type": "library",
+   "name": "pk",
+   "bom-ref": "a48"
+  },
+  {
+   "type": "library",
+   "name": "pk_ecc",
+   "bom-ref": "a49"
+  },
+  {
+   "type": "library",
+   "name": "pk_wrap",
+   "bom-ref": "a50"
+  },
+  {
+   "type": "library",
+   "name": "pkcs12",
+   "bom-ref": "a51"
+  },
+  {
+   "type": "library",
+   "name": "pkcs5",
+   "bom-ref": "a52"
+  },
+  {
+   "type": "library",
+   "name": "pkparse",
+   "bom-ref": "a53"
+  },
+  {
+   "type": "library",
+   "name": "pkwrite",
+   "bom-ref": "a54"
+  },
+  {
+   "type": "library",
+   "name": "platform",
+   "bom-ref": "a55"
+  },
+  {
+   "type": "library",
+   "name": "platform_util",
+   "bom-ref": "a56"
+  },
+  {
+   "type": "library",
+   "name": "poly1305",
+   "bom-ref": "a57"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto",
+   "bom-ref": "a58"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_aead",
+   "bom-ref": "a59"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_cipher",
+   "bom-ref": "a60"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_client",
+   "bom-ref": "a61"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_driver_wrappers_no_static",
+   "bom-ref": "a62"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_ecp",
+   "bom-ref": "a63"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_ffdh",
+   "bom-ref": "a64"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_hash",
+   "bom-ref": "a65"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_mac",
+   "bom-ref": "a66"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_pake",
+   "bom-ref": "a67"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_rsa",
+   "bom-ref": "a68"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_se",
+   "bom-ref": "a69"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_slot_management",
+   "bom-ref": "a70"
+  },
+  {
+   "type": "library",
+   "name": "psa_crypto_storage",
+   "bom-ref": "a71"
+  },
+  {
+   "type": "library",
+   "name": "psa_its_file",
+   "bom-ref": "a72"
+  },
+  {
+   "type": "library",
+   "name": "psa_util",
+   "bom-ref": "a73"
+  },
+  {
+   "type": "library",
+   "name": "ripemd160",
+   "bom-ref": "a74"
+  },
+  {
+   "type": "library",
+   "name": "rsa",
+   "bom-ref": "a75"
+  },
+  {
+   "type": "library",
+   "name": "rsa_alt_helpers",
+   "bom-ref": "a76"
+  },
+  {
+   "type": "library",
+   "name": "sha1",
+   "bom-ref": "a77"
+  },
+  {
+   "type": "library",
+   "name": "sha256",
+   "bom-ref": "a78"
+  },
+  {
+   "type": "library",
+   "name": "sha3",
+   "bom-ref": "a79"
+  },
+  {
+   "type": "library",
+   "name": "sha512",
+   "bom-ref": "a80"
+  },
+  {
+   "type": "library",
+   "name": "threading",
+   "bom-ref": "a81"
+  },
+  {
+   "type": "library",
+   "name": "timing",
+   "bom-ref": "a82"
+  },
+  {
+   "type": "library",
+   "name": "version",
+   "bom-ref": "a83"
+  },
+  {
+   "type": "library",
+   "name": "version_features",
+   "bom-ref": "a84"
+  },
+  {
+   "type": "library",
+   "name": "x25519",
+   "bom-ref": "a85"
+  }
+ ]
+}

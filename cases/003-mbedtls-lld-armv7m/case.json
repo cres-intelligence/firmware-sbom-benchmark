@@ -1,0 +1,83 @@
+{
+  "Case": "003-mbedtls-lld-armv7m",
+  "Name": "The same vendor archive, linked by LLD instead of GNU ld",
+  "Why": "NOT IAR OR ARMLINK -- both are licence-gated and neither is installable here; see NotIarOrArmlink below. This is the nearest thing that is real: a genuinely different linker, with a genuinely different and INCOMPATIBLE map format, linking the byte-identical archive case 002 linked with GNU ld. It isolates exactly one variable, and it answers the question the corpus most needed answered: does our evidence survive a change of toolchain.",
+  "NotIarOrArmlink": {
+    "Asked": "Case 003 was asked for with IAR or armlink.",
+    "Why not": "IAR Build Tools and Arm Compiler for Embedded (armclang/armlink) are proprietary and licence-gated: the downloads require an entitlement and the compilers refuse to run without a licence server or node-locked key. Neither is present on this machine and neither can be installed in a container from a public source. A fabricated map for either would be exactly the unreproducible evidence this corpus exists to replace, so none was written.",
+    "What would unblock it": "An IAR or Keil MDK licence, or -- cheaper and almost as useful -- a single real `.map` file from either toolchain for any project, with the build recipe beside it. One real map is enough to write and TEST a parser for that format; a specification alone is not, which is the whole lesson of this case."
+  },
+  "Upstream": {
+    "Project": "Mbed-TLS/mbedtls",
+    "Url": "https://github.com/Mbed-TLS/mbedtls",
+    "Tag": "v3.6.2",
+    "Commit": "107ea89daaefb9867ea9121002fbbdf926780e98",
+    "Submodules": {
+      "framework": "94599c0e3b5036e086446a51a3f79640f70f22f6"
+    },
+    "SameAs": "Identical to case 002 -- same commit, same archive, 94,294 bytes and 86 members."
+  },
+  "Target": {
+    "Architecture": "arm",
+    "Cpu": "armv7m",
+    "Abi": "thumb/v7-m/nofp"
+  },
+  "Toolchain": {
+    "ArchiveBuiltBy": "arm-none-eabi-gcc 12.2.1 -- deliberately the same as case 002",
+    "Compiler": "Debian clang 14.0.6, --target=armv7m-none-eabi",
+    "Linker": "Debian LLD 14.0.6",
+    "Container": "debian:bookworm",
+    "Flags": [
+      "-Os",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "--gc-sections",
+      "--entry _start",
+      "--Map=output.map",
+      "-nostdlib"
+    ],
+    "FreestandingNote": "-nostdlib, with memcpy and memset written into app.c. Pulling newlib in would mean linking a GCC-built libc with LLD and then comparing two maps that differ in their libc as well as their linker. The image here is the application, the vendor archive, and nothing else."
+  },
+  "Artifacts": {
+    "Image": "app.elf",
+    "ImageDigest": "sha256:339ca9dda1b1b7020b92229ea4861bd7fc7161ed4d1d7ee4e28040bc6a121c8c",
+    "LinkedBytes": 16410,
+    "LinkedBytesNote": "Not comparable with case 002's 58,291: that image contains newlib and this one is freestanding. What IS comparable is the archive-member decision, and the two linkers agree exactly."
+  },
+  "Evidence": {
+    "LinkerMap": "evidence/output.map.gz",
+    "PrintGcSections": "evidence/print-gc-sections.txt",
+    "MembersInArchive": "evidence/members-in-archive.txt",
+    "MembersPulledIn": "evidence/members-pulled-in.txt",
+    "MembersNeverPulled": "evidence/members-never-pulled.txt",
+    "NeverPulledNote": "DERIVED BY READING THE ARCHIVE, not by reading the link. That is this case's central finding -- see Findings.",
+    "ParsedBy": "nothing in the tier: cres_t4.service.linker_map.parse REFUSES this file"
+  },
+  "Findings": [
+    {
+      "Finding": "The two linkers agree on the answer.",
+      "Detail": "LLD pulled in aes.o, platform_util.o and sha256.o -- the same three of 86 that GNU ld pulled in, in case 002. The question 'which members shipped' has a toolchain-independent answer, which is the premise the collector rests on and it had never been checked."
+    },
+    {
+      "Finding": "The map formats are incompatible, and ours refuses the foreign one rather than mis-reading it.",
+      "Detail": "An LLD map opens with a column header -- `VMA LMA Size Align Out In Symbol` -- and writes sizes as bare hex. A GNU ld map has no header and writes `0x`-prefixed values under the headings `Archive member included...`, `Discarded input sections` and `Linker script and memory map`. `linker_map.parse` raises UnreadableMap with the sentence 'That file does not look like a GNU ld link map', which is the right behaviour: a half-read foreign map would produce confident wrong numbers."
+    },
+    {
+      "Finding": "AN LLD MAP CONTAINS NO DISCARD EVIDENCE AT ALL, and this is the finding that matters.",
+      "Detail": "Zero occurrences of 'Discarded', 'Archive member' or any equivalent. The central evidence of cases 001 and 002 -- what the linker threw away -- cannot be obtained from an LLD map. `--print-gc-sections` is a SEPARATE artifact on stderr, and it is a LIST OF REMOVALS RATHER THAN AN INVENTORY, which makes it no substitute in two ways. The 83 members never pulled in produce no output, because there was nothing to collect. And sha256.o produces no output either -- despite being one of the three members IN the image -- because every section it contributed was used. So the output can be read neither as what shipped nor as what did not. On LLD, 'what was in the archive and did not ship' requires reading the ARCHIVE; the link will not tell you. On GNU ld the map alone suffices."
+    }
+  ],
+  "Scoreable": [
+    "components",
+    "versions",
+    "licences",
+    "scope",
+    "provenance",
+    "false-positives",
+    "binding"
+  ],
+  "NotScoreable": {
+    "reproducibility": "Not measured for this case; case 002 measures it for the same project.",
+    "map-parsing": "There is no parser for this format, which is the case's point rather than a gap in it."
+  }
+}

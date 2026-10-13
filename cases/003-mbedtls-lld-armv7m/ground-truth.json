@@ -1,0 +1,65 @@
+{
+  "Case": "003-mbedtls-lld-armv7m",
+  "GroundTruthVersion": 1,
+  "Established": "2026-10-13",
+  "Method": "Derived from the LLD map in evidence/output.map.gz by reading its own columns (VMA LMA Size Align Out In Symbol), cross-checked against `arm-none-eabi-ar t` over the archive. NOT parsed by cres_t4.service.linker_map.parse, which refuses this format -- the truth here was established by hand from the file, which is what a corpus has to be able to do for a format no tool reads yet. Versions and licences carry over from case 002's recorded commit: the same tree, the same archive.",
+  "Matching": "A candidate component matches when its name, lower-cased with punctuation removed, equals the entry's Name or any of its AcceptableNames.",
+
+  "Components": [
+    {
+      "Name": "Mbed TLS",
+      "AcceptableNames": ["mbedtls", "mbedcrypto", "libmbedcrypto", "mbedtlscrypto", "armmbedtls"],
+      "Version": "3.6.2",
+      "VersionConfidence": "pinned",
+      "VersionNote": "MBEDTLS_VERSION_STRING in the built tree at commit 107ea89d, tag v3.6.2 -- the same tree as case 002.",
+      "Licence": "Apache-2.0 OR GPL-2.0-or-later",
+      "LicenceConfidence": "pinned",
+      "LicenceNote": "LICENSE in the built tree plus the SPDX-License-Identifier of aes.c, sha256.c and platform_util.c, the three sources whose members are in this image.",
+      "Scope": "shipped",
+      "ScopeConfidence": "pinned",
+      "Evidence": {
+        "Archives": ["libmbedcrypto.a"],
+        "LinkedBytes": 14032,
+        "ByMember": {"aes.o": 11536, "sha256.o": 2468, "platform_util.o": 28},
+        "MembersInArchive": 86,
+        "MembersPulledIn": 3,
+        "MembersNeverPulled": 83,
+        "PulledInNames": ["aes.o", "platform_util.o", "sha256.o"],
+        "Lists": {
+          "InArchive": "evidence/members-in-archive.txt",
+          "PulledIn": "evidence/members-pulled-in.txt",
+          "NeverPulled": "evidence/members-never-pulled.txt"
+        }
+      },
+      "Uncertainty": "THE SAME THREE MEMBERS GNU LD CHOSE, WHICH IS THE POINT. Case 002 linked this identical archive with GNU ld and pulled in exactly these three. So 'which members shipped' has a toolchain-independent answer. What is NOT toolchain-independent is the evidence: the 83 never-pulled names in the list beside this entry were derived by reading the archive with `ar t`, because an LLD map does not record archive inclusion at all. A collector relying on the map alone would be correct on GNU ld and blind here."
+    }
+  ],
+
+  "NotComponents": [
+    {
+      "Name": "the application",
+      "Why": "First-party code -- app.c, including the memcpy and memset the freestanding build needs. 293 bytes.",
+      "Objects": 1,
+      "LinkedBytes": 293,
+      "ObjectNames": ["app.o"]
+    },
+    {
+      "Name": "<internal>",
+      "Why": "NOT A FILE. LLD's own name for linker-generated content -- the .ARM.exidx table and padding. 2,085 bytes. Recorded so nobody reports it as a component and so a parser that does can be seen to be wrong. GNU ld maps carry the same kind of thing under different names, which is why a format-specific reader cannot be written from a specification alone.",
+      "Objects": 0,
+      "LinkedBytes": 2085,
+      "ObjectNames": []
+    }
+  ],
+
+  "Open": [
+    {
+      "Question": "Does the total reconcile?",
+      "Detail": "14032 + 293 + 2085 = 16410, which is the sum of every sized `In` row in the LLD map. It reconciles exactly."
+    },
+    {
+      "Question": "What would IAR and armlink need?",
+      "Detail": "One real .map file from either, with its build recipe. The parser for a format can be written and TESTED from one real artifact; it cannot be written safely from a specification, which is this case's whole lesson -- LLD's format is documented, and the thing that mattered (no discard evidence anywhere in it) is not something a specification would have told you."
+    }
+  ]
+}

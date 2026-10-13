@@ -29,6 +29,7 @@ the point of having a corpus at all.
 |---|---|---|
 | **001** `freertos-plus-tcp-mps2` | Loose object files, and seven compiled translation units the linker discarded | scope, components, provenance |
 | **002** `mbedtls-vendor-archive-cortex-m3` | **A vendor `.a`** — `libmbedcrypto.a` with 86 members, of which the image needs 3 | scope, components, **versions**, **licences**, **reproducibility**, **binary binding** |
+| **003** `mbedtls-lld-armv7m` | **A different linker.** The byte-identical archive, linked by LLD instead of GNU ld | that the ANSWER is toolchain-independent and the EVIDENCE is not |
 
 The two are complementary on purpose. Case 001 is strong evidence with weak provenance: its build
 recorded no commit and kept no artifact, so its versions cannot be established and the scorer
@@ -110,7 +111,13 @@ judgement, and it is written down as one.
 
 Stated here because a corpus's limits are part of its result:
 
-* **GNU ld only.** IAR, armlink (Keil) and TI emit different, under-specified map formats. Untested.
+* **No IAR, armlink or TI.** All three are proprietary and licence-gated; none could be built here,
+  and a plausible map written from their documentation would be the unreproducible evidence this
+  corpus exists to replace. Case 003 covers a non-GNU linker instead (LLD), which established that
+  **the answer is toolchain-independent and the evidence is not** — an LLD map carries no discard
+  information at all. **One real `.map` file from IAR or armlink, with its recipe, is enough to
+  write and test a reader for that format.** A specification is not: LLD's format is documented, and
+  the thing that mattered is not something the documentation would have told us.
 * **One architecture.** Cortex-M3 in both cases, one build configuration each.
 * **Two projects.** FreeRTOS and Mbed TLS. Both widely used in medical device firmware, neither a
   substitute for the breadth a published corpus eventually needs.
