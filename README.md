@@ -192,14 +192,26 @@ Stated here because a corpus's limits are part of its result:
   and a plausible map written from their documentation would be the unreproducible evidence this
   corpus exists to replace. Case 003 covers a non-GNU linker instead (LLD), which established that
   **the answer is toolchain-independent and the evidence is not** — an LLD map carries no discard
-  information at all. **One real `.map` file from IAR or armlink, with its recipe, is enough to
-  write and test a reader for that format.** A specification is not: LLD's format is documented, and
+  information at all.
+
+  **The discard information may not be in the map at all, which changes what to ask for.** A
+  practitioner pointed out that IAR's ILINK takes `--log sections`, which logs the section
+  selection the linker performed rather than only the layout it arrived at; `--log
+  unused_fragments` looks like the companion for what section-fragment elimination removed.
+  **Neither has been seen here** — there is no IAR installation to run, and a reader written from
+  that description alone would be the same unreproducible evidence as a map written from a
+  specification. It is recorded because it moves the ask: for IAR the useful artefact is probably
+  **the map together with the `--log sections` output**, not the map alone. armlink's equivalent is
+  still an open question, `--info unused` being the obvious candidate.
+
+  **One real set of those files from a build somebody is already licensed to run, with its recipe,
+  is enough to write and test a reader.** A specification is not: LLD's format is documented, and
   the thing that mattered is not something the documentation would have told us.
 * **Two architectures.** Cortex-M and RISC-V rv64imac. Nothing big-endian, nothing 8- or 16-bit.
 * **Two projects.** FreeRTOS and Mbed TLS. Both widely used in medical device firmware, neither a
   substitute for the breadth a published corpus eventually needs.
 
-**What the four cases establish together**, which no single case could:
+**What these three cases establish together**, which no single case could:
 
 | | 002 Cortex-M, GNU ld | 003 Cortex-M, LLD | 004 RISC-V, GNU ld |
 |---|---|---|---|
