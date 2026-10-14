@@ -213,6 +213,27 @@ manifest.
 * **No comparison yet.** Nothing has been scored against this. Syft and Trivy are not firmware
   tools, but running them anyway and publishing what happens is worth doing.
 
+## Where this is published, and how to keep it that way
+
+The corpus is public at **https://github.com/cres-intelligence/firmware-sbom-benchmark**, under
+Apache-2.0 (see `LICENSE` and `NOTICE`, which say what the licence does and does not cover).
+
+**IT IS PUBLISHED AS A GIT SUBTREE OF THIS DIRECTORY, not copied.** This directory stays the
+working copy, because two consumers read it from here by relative path -- `cres-aws-t4`'s Python
+suite at `benchmark/cases`, and `cres-collector`'s Makefile at `../cres-aws-t4/benchmark/cases`.
+Moving it would break both, and two independent copies of a corpus is how two copies quietly stop
+agreeing.
+
+To publish a change, from the repository root:
+
+```bash
+git subtree push --prefix=benchmark \
+    https://github.com/cres-intelligence/firmware-sbom-benchmark.git master
+```
+
+**A change committed here is not a published one until that runs.** If the public copy is behind,
+that command is the whole fix; the history is shared, so it fast-forwards.
+
 ## Licence boundary
 
 Everything here is specified from **public standards** — CycloneDX, SPDX, NTIA minimum elements,

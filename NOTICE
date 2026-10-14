@@ -1,0 +1,30 @@
+The firmware SBOM benchmark corpus
+Copyright 2026 cres intelligence
+
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+WHAT IS AND IS NOT COVERED BY THAT LICENCE
+------------------------------------------
+Apache-2.0 covers the material this project authored: the case definitions
+(case.json), the established ground truth (ground-truth.json), the build
+recipes (Dockerfile, clone.sh, build.sh, link.sh), the test application
+sources, the scorer (score.py), the harness (run.py) and the documentation.
+
+The corpus also contains BUILD OUTPUTS -- linker maps, compilation databases,
+size listings and digests -- produced by compiling third-party open-source
+projects. Those projects carry their own upstream licences, recorded per case
+in case.json:
+
+    Mbed TLS                 Apache-2.0 OR GPL-2.0-or-later
+    FreeRTOS-Plus-TCP        MIT
+    FreeRTOS kernel          MIT
+    newlib                   BSD-like, several licences
+
+A linker map is an artefact of a build, not a copy of a project's source. It
+carries symbol names, object file names and byte counts. It is published here
+so that the ground truth can be independently checked, which is the only way a
+benchmark means anything.
+
+No third-party source code is redistributed here. Each case's clone.sh fetches
+upstream at a pinned tag, so anybody can reproduce the build rather than take
+these figures on trust.
