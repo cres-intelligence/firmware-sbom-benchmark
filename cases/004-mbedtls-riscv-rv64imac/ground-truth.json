@@ -79,10 +79,12 @@
       "Name": "the application",
       "Why": "First-party code -- app.c, including the memcpy and memset the freestanding build needs. One object, 334 bytes.",
       "Objects": 1,
-      "LinkedBytes": 334,
+      "LinkedBytes": 244,
       "ObjectNames": [
         "app.o"
-      ]
+      ],
+      "PreviousLinkedBytes": 334,
+      "LinkedBytesNote": "CORRECTED 2026-10-13 along with the Components, which were corrected first and left this entry behind -- caught by the corpus test asserting that the parts sum to the map's own total, which is exactly what that assertion is for."
     }
   ],
   "Open": [

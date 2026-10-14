@@ -123,10 +123,12 @@
       "Name": "the application",
       "Why": "First-party code -- app.c, which calls SHA-256 and AES and nothing else. One object, 252 bytes. A tool reporting it as a third-party component is producing a false positive.",
       "Objects": 1,
-      "LinkedBytes": 252,
+      "LinkedBytes": 168,
       "ObjectNames": [
         "app.o"
-      ]
+      ],
+      "PreviousLinkedBytes": 252,
+      "LinkedBytesNote": "CORRECTED 2026-10-13 along with the Components, which were corrected first and left this entry behind -- caught by the corpus test asserting that the parts sum to the map's own total, which is exactly what that assertion is for."
     },
     {
       "Name": "*crtend?.o",
